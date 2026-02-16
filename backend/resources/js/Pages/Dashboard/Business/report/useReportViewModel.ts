@@ -47,7 +47,7 @@ export function useReportViewModel() {
                 const searchLower = searchTerm.toLowerCase();
                 const matchesSearch =
                     transaction.client_name?.toLowerCase().includes(searchLower) ||
-                    transaction.description?.toLowerCase().includes(searchLower) ||
+                    transaction.notes?.toLowerCase().includes(searchLower) ||
                     transaction.amount?.toString().includes(searchLower);
 
                 if (!matchesSearch) return false;
@@ -81,9 +81,9 @@ export function useReportViewModel() {
             const amountClean = amountStr.replace(/[^0-9.-]+/g, "");
             const amount = parseFloat(amountClean) || 0;
 
-            if (transaction.type === 'Revenue' || transaction.type === 'Income' || transaction.type === 'income') {
+            if (transaction.type === 'income') {
                 return acc + amount;
-            } else if (transaction.type === 'Expense' || transaction.type === 'expense') {
+            } else if (transaction.type === 'expense') {
                 return acc - amount;
             }
             return acc;
@@ -114,9 +114,9 @@ export function useReportViewModel() {
             const amountClean = amountStr.replace(/[^0-9.-]+/g, "");
             const amount = parseFloat(amountClean) || 0;
 
-            if (transaction.type === 'Revenue' || transaction.type === 'Income' || transaction.type === 'income') {
+            if (transaction.type === 'income') {
                 revenue += amount;
-            } else if (transaction.type === 'Expense' || transaction.type === 'expense') {
+            } else if (transaction.type === 'expense') {
                 expenses += amount;
             }
         });
@@ -140,7 +140,7 @@ export function useReportViewModel() {
     const expenseCategoryData = useMemo(() => {
         if (!filteredTransactions.length) return [];
 
-        const expenses = filteredTransactions.filter((t: any) => t.type === 'Expense' || t.type === 'expense');
+        const expenses = filteredTransactions.filter((t: any) => t.type === 'expense');
         const categoryMap: Record<string, number> = {};
 
         expenses.forEach((t: any) => {

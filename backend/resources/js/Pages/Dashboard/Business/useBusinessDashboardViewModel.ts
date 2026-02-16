@@ -53,7 +53,7 @@ export function useBusinessDashboardViewModel() {
             id: t.id,
             description: t.notes || t.category || "Transaction",
             type: t.type === 'income' ? 'Revenue' : 'Expense',
-            date: t.transaction_date,
+            date: t.transaction_date ? new Date(t.transaction_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A',
             amount: `₹${t.amount}`,
             status: t.status === 'completed' ? 'Paid' : 'Pending',
         }));

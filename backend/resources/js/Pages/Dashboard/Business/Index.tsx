@@ -37,7 +37,7 @@ function BusinessDashboardContent() {
                             </h3>
                             <div className="flex items-baseline mt-1">
                                 <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                    {metrics.revenue.value}
+                                    {metrics?.revenue?.value || "₹0.00"}
                                 </span>
                             </div>
                         </div>
@@ -49,15 +49,15 @@ function BusinessDashboardContent() {
                     </div>
                     <div className="flex items-center text-xs md:text-sm">
                         <span
-                            className={`flex items-center font-medium ${metrics.revenue.trendDirection === "up"
+                            className={`flex items-center font-medium ${metrics?.revenue?.trendDirection === "up"
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-red-600 dark:text-red-400"
                                 }`}
                         >
                             <span className="material-symbols-outlined text-sm md:text-base mr-0.5 md:mr-1">
-                                {metrics.revenue.trendDirection === "up" ? "trending_up" : "trending_down"}
+                                {metrics?.revenue?.trendDirection === "up" ? "trending_up" : "trending_down"}
                             </span>
-                            {metrics.revenue.trend}
+                            {metrics?.revenue?.trend}
                         </span>
                     </div>
                 </div>
@@ -70,7 +70,7 @@ function BusinessDashboardContent() {
                             </h3>
                             <div className="flex items-baseline mt-1">
                                 <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                    {metrics.netProfit.value}
+                                    {metrics?.netProfit?.value || "₹0.00"}
                                 </span>
                             </div>
                         </div>
@@ -82,17 +82,17 @@ function BusinessDashboardContent() {
                     </div>
                     <div className="flex items-center text-xs md:text-sm">
                         <span
-                            className={`flex items-center font-medium ${metrics.netProfit.trendDirection === "up"
+                            className={`flex items-center font-medium ${metrics?.netProfit?.trendDirection === "up"
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-red-600 dark:text-red-400"
                                 }`}
                         >
                             <span className="material-symbols-outlined text-sm md:text-base mr-0.5 md:mr-1">
-                                {metrics.netProfit.trendDirection === "up"
+                                {metrics?.netProfit?.trendDirection === "up"
                                     ? "trending_up"
                                     : "trending_down"}
                             </span>
-                            {metrics.netProfit.trend}
+                            {metrics?.netProfit?.trend}
                         </span>
                     </div>
                 </div>
@@ -138,7 +138,7 @@ function BusinessDashboardContent() {
                             </h3>
                             <div className="flex items-baseline mt-1">
                                 <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                    {metrics.outstandingInvoices.value}
+                                    {metrics?.outstandingInvoices?.value || "₹0.00"}
                                 </span>
                             </div>
                         </div>
@@ -149,7 +149,7 @@ function BusinessDashboardContent() {
                         </div>
                     </div>
                     <div className="flex items-center text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                        {metrics.outstandingInvoices.detail}
+                        {metrics?.outstandingInvoices?.detail}
                     </div>
                 </div>
 
@@ -161,7 +161,7 @@ function BusinessDashboardContent() {
                             </h3>
                             <div className="flex items-baseline mt-1">
                                 <span className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white">
-                                    {metrics.pendingBills.value}
+                                    {metrics?.pendingBills?.value || "₹0.00"}
                                 </span>
                             </div>
                         </div>
@@ -172,7 +172,7 @@ function BusinessDashboardContent() {
                         </div>
                     </div>
                     <div className="flex items-center text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                        {metrics.pendingBills.detail}
+                        {metrics?.pendingBills?.detail}
                     </div>
                 </div>
             </div>

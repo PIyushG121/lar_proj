@@ -14,16 +14,16 @@ interface KpiCardProps {
 export default function KpiCard({ title, value, trend, trendDirection, icon, loading }: KpiCardProps) {
     if (loading) {
         return (
-            <div className="bg-white dark:bg-black rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 h-32 animate-pulse">
-                <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                <div className="h-8 w-1/2 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                <div className="h-3 w-1/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-border-dark h-32 animate-pulse transition-colors duration-200">
+                <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-800 rounded mb-4"></div>
+                <div className="h-8 w-1/2 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
+                <div className="h-3 w-1/4 bg-gray-200 dark:bg-gray-800 rounded"></div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white dark:bg-black rounded-xl p-2 md:p-6 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col justify-between min-h-[6rem] md:h-32 relative overflow-hidden group transition-all duration-200 hover:shadow-md">
+        <div className="bg-white dark:bg-card-dark rounded-2xl p-2 md:p-6 shadow-sm border border-gray-200 dark:border-border-dark flex flex-col justify-between min-h-[6rem] md:h-32 relative overflow-hidden group transition-all duration-200 hover:shadow-md hover:border-primary/30">
             <div className="absolute right-0 top-0 p-2 md:p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-75 md:scale-100 origin-top-right">
                 {icon}
             </div>

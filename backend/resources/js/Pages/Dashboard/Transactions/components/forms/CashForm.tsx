@@ -1,9 +1,9 @@
 import React from 'react';
-import { CashInHandFormData } from '../../types';
+import { CashInHandFormData } from '@/lib/validations';
 
 interface CashFormProps {
     formData: CashInHandFormData;
-    setFormData: React.Dispatch<React.SetStateAction<CashInHandFormData>>;
+    setFormData: (data: CashInHandFormData) => void;
     errors: Record<string, string>;
     onSubmit: (e: React.FormEvent) => void;
     onCancel: () => void;
@@ -24,7 +24,7 @@ export default function CashForm({
                     <select
                         value={formData.adjustmentType}
                         onChange={(e) => setFormData({ ...formData, adjustmentType: e.target.value as any })}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 rounded-lg text-sm appearance-none"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800 rounded-lg text-sm appearance-none outline-none focus:border-primary"
                     >
                         <option value="Add Cash">Add Cash</option>
                         <option value="Remove Cash">Remove Cash</option>
@@ -34,12 +34,12 @@ export default function CashForm({
                 <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">₹</span>
                         <input
                             type="text"
                             value={formData.amount}
                             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                            className={`w-full pl-7 pr-4 py-2 bg-gray-50 dark:bg-gray-900/50 border rounded-lg text-sm ${errors.amount ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
+                            className={`w-full pl-7 pr-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.amount ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
                             placeholder="0.00"
                         />
                     </div>
@@ -51,7 +51,7 @@ export default function CashForm({
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border rounded-lg text-sm ${errors.date ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
+                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.date ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
                     />
                     {errors.date && <p className="text-xs text-red-500 mt-1">{errors.date}</p>}
                 </div>
@@ -61,7 +61,7 @@ export default function CashForm({
                         type="text"
                         value={formData.reference}
                         onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border rounded-lg text-sm ${errors.reference ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
+                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.reference ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
                         placeholder="e.g. Daily Cash Sales"
                     />
                     {errors.reference && <p className="text-xs text-red-500 mt-1">{errors.reference}</p>}
@@ -71,13 +71,13 @@ export default function CashForm({
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
-                    className="px-6 py-2 bg-primary hover:bg-orange-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+                    className="px-6 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
                 >
                     Save Adjustment
                 </button>

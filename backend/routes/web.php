@@ -9,9 +9,9 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('welcome');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -24,7 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/business/help', [\App\Http\Controllers\TransactionController::class, 'businessHelp'])->name('dashboard.business.help');
     Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [\App\Http\Controllers\TransactionController::class, 'store'])->name('transactions.store');
+    Route::post('/transactions/recalculate', [\App\Http\Controllers\TransactionController::class, 'recalculate'])->name('transactions.recalculate');
+    Route::get('/transactions/export', [\App\Http\Controllers\TransactionController::class, 'export'])->name('transactions.export');
     Route::delete('/transactions/{id}', [\App\Http\Controllers\TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+    Route::post('/organization/switch', [\App\Http\Controllers\TransactionController::class, 'switchOrganization'])->name('organization.switch');
 });
 
 require __DIR__ . '/auth.php';

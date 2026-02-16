@@ -18,7 +18,7 @@ export default function AddTransactionForm({
     return (
         <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sticky top-6">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#F97316]">add_circle</span>
+                <span className="material-symbols-outlined text-primary">add_circle</span>
                 Add New Transaction
             </h2>
 
@@ -30,7 +30,7 @@ export default function AddTransactionForm({
                         onClick={() => form.setData('type', 'income')}
                         className={`py-2 px-4 rounded-lg text-sm font-medium transition border ${form.data.type === 'income'
                             ? 'border-green-500 text-green-500 bg-green-500/10'
-                            : 'border-gray-700 text-gray-500 hover:text-gray-400 hover:border-gray-600 bg-transparent'
+                            : 'border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-400 hover:border-gray-700 bg-transparent'
                             }`}
                     >
                         Income
@@ -40,7 +40,7 @@ export default function AddTransactionForm({
                         onClick={() => form.setData('type', 'expense')}
                         className={`py-2 px-4 rounded-lg text-sm font-medium transition border ${form.data.type === 'expense'
                             ? 'border-red-500 text-red-500 bg-red-500/10'
-                            : 'border-gray-700 text-gray-500 hover:text-gray-400 hover:border-gray-600 bg-transparent'
+                            : 'border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-400 hover:border-gray-700 bg-transparent'
                             }`}
                     >
                         Expense
@@ -57,7 +57,7 @@ export default function AddTransactionForm({
                                 type="text"
                                 value={form.data.amount}
                                 onChange={(e) => form.setData('amount', e.target.value)}
-                                className={`w-full pl-8 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F97316] text-sm text-gray-900 dark:text-white ${form.errors.amount ? 'border-red-500' : 'border-gray-700'
+                                className={`w-full pl-8 pr-4 py-2 bg-gray-50 dark:bg-gray-950 border rounded-lg focus:outline-none focus:border-primary text-sm text-gray-900 dark:text-white ${form.errors.amount ? 'border-red-500' : 'border-gray-200 dark:border-gray-800'
                                     }`}
                                 placeholder="0.00"
                             />
@@ -70,7 +70,7 @@ export default function AddTransactionForm({
                             type="date"
                             value={form.data.transaction_date}
                             onChange={(e) => form.setData('transaction_date', e.target.value)}
-                            className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F97316] text-sm text-gray-900 dark:text-white cursor-pointer ${form.errors.transaction_date ? 'border-red-500' : 'border-gray-700'
+                            className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950 border rounded-lg focus:outline-none focus:border-primary text-sm text-gray-900 dark:text-white cursor-pointer ${form.errors.transaction_date ? 'border-red-500' : 'border-gray-200 dark:border-gray-800'
                                 }`}
                             style={{ colorScheme: 'dark' }}
                         />
@@ -88,7 +88,7 @@ export default function AddTransactionForm({
                         required
                         value={form.data.client_name}
                         onChange={(e) => form.setData('client_name', e.target.value)}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F97316] text-sm text-gray-900 dark:text-white ${form.errors.client_name ? 'border-red-500' : 'border-gray-700'
+                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950 border rounded-lg focus:outline-none focus:border-primary text-sm text-gray-900 dark:text-white ${form.errors.client_name ? 'border-red-500' : 'border-gray-200 dark:border-gray-800'
                             }`}
                         placeholder={form.data.type === 'income' ? 'e.g. Acme Inc.' : 'e.g. AWS Services'}
                     />
@@ -102,7 +102,7 @@ export default function AddTransactionForm({
                         type="text"
                         value={form.data.category || ''}
                         onChange={(e) => form.setData('category', e.target.value)}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F97316] text-sm text-gray-900 dark:text-white ${form.errors.category ? 'border-red-500' : 'border-gray-700'}`}
+                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950 border rounded-lg focus:outline-none focus:border-primary text-sm text-gray-900 dark:text-white ${form.errors.category ? 'border-red-500' : 'border-gray-200 dark:border-gray-800'}`}
                         placeholder="e.g. Office Supplies, Rent"
                     />
                     {form.errors.category && <p className="text-xs text-red-500 mt-1">{form.errors.category}</p>}
@@ -114,7 +114,7 @@ export default function AddTransactionForm({
                     <textarea
                         value={form.data.description}
                         onChange={(e) => form.setData('description', e.target.value)}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F97316] text-sm text-gray-900 dark:text-white h-20 resize-none"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:border-primary text-sm text-gray-900 dark:text-white h-20 resize-none"
                         placeholder="Brief description..."
                     />
                 </div>
@@ -128,7 +128,7 @@ export default function AddTransactionForm({
                             onClick={() => form.setData('status', 'completed')}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition border ${form.data.status === 'completed'
                                 ? 'border-green-500 text-green-500 bg-green-500/10'
-                                : 'border-gray-700 text-gray-500 hover:text-gray-400 hover:border-gray-600 bg-transparent'
+                                : 'border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-400 hover:border-gray-700 bg-transparent'
                                 }`}
                         >
                             Paid
@@ -138,7 +138,7 @@ export default function AddTransactionForm({
                             onClick={() => form.setData('status', 'pending')}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition border ${form.data.status === 'pending'
                                 ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10'
-                                : 'border-gray-700 text-gray-500 hover:text-gray-400 hover:border-gray-600 bg-transparent'
+                                : 'border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-400 hover:border-gray-700 bg-transparent'
                                 }`}
                         >
                             Pending
@@ -148,7 +148,7 @@ export default function AddTransactionForm({
                             onClick={() => form.setData('status', 'cancelled')}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition border ${form.data.status === 'cancelled'
                                 ? 'border-red-500 text-red-500 bg-red-500/10'
-                                : 'border-gray-700 text-gray-500 hover:text-gray-400 hover:border-gray-600 bg-transparent'
+                                : 'border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-400 hover:border-gray-700 bg-transparent'
                                 }`}
                         >
                             Overdue

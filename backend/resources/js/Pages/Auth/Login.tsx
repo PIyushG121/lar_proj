@@ -1,6 +1,6 @@
 import { useEffect, FormEventHandler } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import ThemeToggle from '@/Components/ThemeToggle';
+import { BorderBeam } from '@/Components/magicui/border-beam';
 import { z } from "zod";
 
 // Zod schema for validation (optional here as Laravel does validation, but good for client-side)
@@ -10,6 +10,9 @@ const loginSchema = z.object({
 });
 
 export default function Login({ status, canResetPassword }: { status?: string, canResetPassword?: boolean }) {
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get('role');
+
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -30,8 +33,8 @@ export default function Login({ status, canResetPassword }: { status?: string, c
     return (
         <div className="flex min-h-screen items-center justify-center p-4 bg-true-black font-display text-gray-200 relative">
             <Head title="Login" />
-            <div className="absolute top-4 right-4">
-                <ThemeToggle />
+            <div className="absolute top-0 right-0">
+                <img src="/login-hero.png" alt="Hero Logo" className="h-100 w-auto opacity-100" />
             </div>
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
@@ -39,10 +42,11 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                         <img src="/logo.png" alt="Walletry Logo" className="h-16 w-auto" />
                     </div>
                 </div>
-                <div className="rounded-2xl border border-slate-700/50 bg-dark-navy p-8 shadow-xl sm:p-10 transition-colors">
+                <div className="relative rounded-2xl border border-slate-700/50 bg-dark-navy p-8 shadow-xl sm:p-10 transition-colors">
+                    <BorderBeam size={250} duration={12} delay={0} />
                     <div className="text-center">
                         <h2 className="text-2xl font-bold text-primary sm:text-3xl">
-                            Login
+                            {role ? `Login as ${role}` : "Login"}
                         </h2>
                         <p className="mt-2 text-sm text-gray-300">
                             Welcome back! Please enter your details.
@@ -152,7 +156,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                             </div>
                             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
                                 Don't have an account?{" "}
-                                <Link href={route('register')} className="font-semibold text-primary hover:underline">
+                                <Link href={route('register', { role })} className="font-semibold text-primary hover:underline">
                                     Sign up
                                 </Link>
                             </p>

@@ -3,17 +3,17 @@ import { usePage, router } from '@inertiajs/react';
 import { Building2 } from 'lucide-react';
 
 export function OrganizationSwitcher() {
-    const { auth } = usePage<any>().props;
+    const auth = usePage<any>().props.auth || {};
     const user = auth.user;
 
     // In a real app, organizations would be passed via props
     // For now, we'll mock it based on what we know from seeding, 
     // but ideally the backend sends this.
-    const organizations = user.organizations || [
+    const organizations = user?.organizations || [
         { id: 1, name: "Acme Corp", type: "LLC", status: "active" }
     ];
 
-    const currentOrgId = user.current_organization_id || (organizations[0]?.id);
+    const currentOrgId = user?.current_organization_id || (organizations[0]?.id);
 
     return (
         <div className="flex items-center gap-2 border rounded-lg p-2 bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800">

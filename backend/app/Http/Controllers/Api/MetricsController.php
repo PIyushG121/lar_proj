@@ -32,48 +32,48 @@ class MetricsController extends Controller
         // For now, assuming Cash in Hand tracks net liquidity
         $cashInHand = $netProfit;
 
-        // 5. Outstanding Invoices
-        $outstandingInvoicesQuery = $org->invoices()
-            ->whereIn('status', ['sent', 'overdue']);
-        
-        $outstandingInvoicesTotal = $outstandingInvoicesQuery->sum('grand_total'); // Assuming grand_total holds the amount
-        $outstandingInvoicesCount = $outstandingInvoicesQuery->count();
-        $uniqueClientsCount = $outstandingInvoicesQuery->distinct('client_id')->count('client_id');
-
-        // 6. Pending Bills
-        $pendingBillsQuery = $org->bills()
+        // 5. Outstanding Invoices (Completed Income Transactions with Pending status)
+        $outstandingInvoicesQuery = $org->transactions()
+            ->where('type', 'income')
             ->where('status', 'pending');
-        
+
+        $outstandingInvoicesTotal = $outstandingInvoicesQuery->sum('amount');
+        $outstandingInvoicesCount = $outstandingInvoicesQuery->count();
+
+        // 6. Pending Bills (Completed Expense Transactions with Pending status)
+        $pendingBillsQuery = $org->transactions()
+            ->where('type', 'expense')
+            ->where('status', 'pending');
+
         $pendingBillsTotal = $pendingBillsQuery->sum('amount');
         $pendingBillsCount = $pendingBillsQuery->count();
-        $uniqueVendorsCount = $pendingBillsQuery->distinct('vendor_id')->count('vendor_id');
 
         return response()->json([
             'revenue' => [
                 'value' => '₹' . number_format($revenue, 2),
-                'trend' => null, // Calculate trend if historical data exists
+                'trend' => '0%',
                 'trendDirection' => 'neutral'
             ],
             'net_profit' => [
                 'value' => '₹' . number_format($netProfit, 2),
-                'trend' => null,
+                'trend' => '0%',
                 'trendDirection' => 'neutral'
             ],
             'cash_in_hand' => [
                 'value' => '₹' . number_format($cashInHand, 2),
-                'trend' => null,
+                'trend' => '0%',
                 'trendDirection' => 'neutral'
             ],
             'outstanding_invoices' => [
                 'value' => '₹' . number_format($outstandingInvoicesTotal, 2),
-                'detail' => "from {$uniqueClientsCount} clients",
-                'trend' => null,
+                'detail' => "from {$outstandingInvoicesCount} expected payments",
+                'trend' => '0%',
                 'trendDirection' => 'neutral'
             ],
             'pending_bills' => [
                 'value' => '₹' . number_format($pendingBillsTotal, 2),
-                'detail' => "to {$uniqueVendorsCount} vendors",
-                'trend' => null,
+                'detail' => "to {$pendingBillsCount} expected payments",
+                'trend' => '0%',
                 'trendDirection' => 'neutral'
             ]
         ]);

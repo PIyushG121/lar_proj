@@ -4,12 +4,21 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
+import BusinessLayout from './BusinessLayout';
 
 export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
+
+    if (user?.role?.toLowerCase() === 'businessman') {
+        return (
+            <BusinessLayout header={header}>
+                {children}
+            </BusinessLayout>
+        );
+    }
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);

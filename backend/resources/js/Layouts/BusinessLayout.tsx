@@ -3,15 +3,17 @@ import BusinessSidebar from "@/Components/BusinessSidebar";
 import HeaderActions from "@/Components/HeaderActions";
 import { usePage } from "@inertiajs/react";
 
-export default function BusinessLayout({ children }: { children: React.ReactNode }) {
+export default function BusinessLayout({ children, header }: { children: React.ReactNode, header?: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { url } = usePage();
 
     const getPageTitle = () => {
+        if (header) return header;
         if (url.includes("/transactions")) return "Transactions";
         if (url.includes("/report")) return "Reports";
         if (url.includes("/settings")) return "Settings";
         if (url.includes("/help")) return "Help Center";
+        if (url.includes("/profile")) return "Profile";
         return "Business";
     };
 

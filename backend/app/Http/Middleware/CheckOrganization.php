@@ -16,15 +16,18 @@ class CheckOrganization
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $orgId = null; // Declare $orgId before usage
         $orgId = $request->header('X-Organization-ID') ?? $request->query('organization_id');
 
         if (!$orgId) {
-            // For now, allow requests without org ID if they are not org-specific (user profile etc)
-            // But strict routes should apply this middleware.
-            return response()->json(['message' => 'Organization context required (X-Organization-ID header)'], 400);
+            $organization = $request->user()?->organizations()->first();
+            if (!$organization) {
+                return response()->json(['message' => 'Organization context required (X-Organization-ID header)'], 400);
+            }
+            $orgId = $organization->id;
+        } else {
+            $organization = Organization::find($orgId);
         }
-
-        $organization = Organization::find($orgId);
 
         if (!$organization) {
             return response()->json(['message' => 'Organization not found'], 404);

@@ -1,89 +1,100 @@
-import { Head, Link } from '@inertiajs/react';
-import { Briefcase, Store, User } from 'lucide-react';
+import React from "react";
+import { Head, Link } from "@inertiajs/react";
+import { AuroraText } from "@/Components/magicui/aurora-text";
+import { BorderBeam } from "@/Components/magicui/border-beam";
 
 export default function Welcome() {
+    function handleContinue(role: string) {
+        // Handled by Inertia Link components below
+    }
+
     return (
-        <>
+        <div className="relative w-full min-h-screen bg-white dark:bg-[#09090b] selection:bg-primary selection:text-white">
             <Head title="Welcome" />
-            <div className="min-h-screen bg-true-black flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-primary selection:text-white">
 
-                {/* Background Decoration */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/5 rounded-full blur-[120px]"></div>
-                </div>
-
-                <div className="z-10 w-full max-w-6xl text-center">
-                    <h1 className="text-5xl md:text-6xl font-bold text-primary mb-4 tracking-tight">
-                        Welcome to Walletry
-                    </h1>
-                    <p className="text-gray-400 text-lg mb-16">
-                        Please select your role to continue
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Businessman Card */}
-                        <div className="bg-dark-navy border border-slate-800 rounded-3xl p-8 flex flex-col items-center text-center hover:border-primary/50 transition-all duration-300 group shadow-lg hover:shadow-primary/10">
-                            <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-slate-700 group-hover:border-primary/30">
-                                <Briefcase className="w-8 h-8 text-primary" strokeWidth={1.5} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-white mb-3">Login as Businessman</h2>
-                            <p className="text-slate-400 text-sm mb-8 leading-relaxed h-10">
-                                Access your dashboard to manage finances, oversee operations, and view analytics.
-                            </p>
-                            <Link
-                                href={route('login')}
-                                className="w-full py-3 px-6 bg-primary hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors duration-200 shadow-lg shadow-orange-900/20"
-                            >
-                                Continue
-                            </Link>
-                        </div>
-
-                        {/* Vendor Card */}
-                        <div className="bg-dark-navy border border-slate-800 rounded-3xl p-8 flex flex-col items-center text-center hover:border-primary/50 transition-all duration-300 group shadow-lg hover:shadow-primary/10">
-                            <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-slate-700 group-hover:border-primary/30">
-                                <Store className="w-8 h-8 text-primary" strokeWidth={1.5} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-white mb-3">Login as Vendor</h2>
-                            <p className="text-slate-400 text-sm mb-8 leading-relaxed h-10">
-                                Manage your products, track sales, and handle invoices and payments.
-                            </p>
-                            <Link
-                                href={route('login')}
-                                className="w-full py-3 px-6 bg-primary hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors duration-200 shadow-lg shadow-orange-900/20"
-                            >
-                                Continue
-                            </Link>
-                        </div>
-
-                        {/* Client Card */}
-                        <div className="bg-dark-navy border border-slate-800 rounded-3xl p-8 flex flex-col items-center text-center hover:border-primary/50 transition-all duration-300 group shadow-lg hover:shadow-primary/10">
-                            <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-slate-700 group-hover:border-primary/30">
-                                <User className="w-8 h-8 text-primary" strokeWidth={1.5} />
-                            </div>
-                            <h2 className="text-2xl font-bold text-white mb-3">Login as Client</h2>
-                            <p className="text-slate-400 text-sm mb-8 leading-relaxed h-10">
-                                View your purchase history, manage your account, and communicate with vendors.
-                            </p>
-                            <Link
-                                href={route('login')}
-                                className="w-full py-3 px-6 bg-primary hover:bg-orange-600 text-white font-semibold rounded-xl transition-colors duration-200 shadow-lg shadow-orange-900/20"
-                            >
-                                Continue
-                            </Link>
-                        </div>
-                    </div>
-
-                    <div className="mt-20 text-slate-600 text-sm">
-                        &copy; 2026 Walletry. All rights reserved.
-                    </div>
-                </div>
-
-                {/* Floating Theme Toggle (Optional, usually hidden on landing but good for dev) */}
-                {/* <div className="absolute bottom-4 right-4">
-                    <ThemeToggle />
-                </div> */}
+            {/* Hero Image - Absolute positioned in top right (if image exists locally) */}
+            <div className="hidden lg:block absolute top-4 right-4 w-64 h-64 z-10 pointer-events-none opacity-50 dark:opacity-30">
+                {/* Illustration placeholder or image if available */}
             </div>
-        </>
+
+            {/* Content */}
+            <div className="flex flex-col h-full min-h-screen font-sans overflow-y-auto">
+                <header className="flex items-center justify-between whitespace-nowrap px-4 py-6 sm:px-8 w-full z-20 relative">
+                    <div className="flex items-center gap-3 text-gray-900 dark:text-white">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+                            <span className="material-symbols-outlined">account_balance_wallet</span>
+                        </div>
+                        <span className="text-xl font-bold tracking-tight">Walletry</span>
+                    </div>
+                </header>
+
+                <main className="flex-1 flex flex-col justify-center px-4 sm:px-8 py-10 min-h-0">
+                    <div className="max-w-2xl w-full mx-auto space-y-10">
+                        <div className="space-y-4">
+                            <h1 className="text-5xl sm:text-5xl lg:text-7xl font-bold tracking-tighter text-gray-900 dark:text-white leading-tight">
+                                <AuroraText>Welcome to Walletry</AuroraText>
+                            </h1>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg font-normal max-w-lg">
+                                Manage your business, track your sales, or shop with ease. Select your role to get started.
+                            </p>
+                        </div>
+
+                        <div className="grid gap-6">
+                            {/* Business */}
+                            <Link
+                                href={route('login', { role: 'Businessman' })}
+                                className="group relative flex items-center gap-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900/50 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-primary/50 cursor-pointer overflow-hidden"
+                            >
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                                    <span className="material-symbols-outlined text-3xl">business_center</span>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Login as Businessman</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage finances, operations & analytics</p>
+                                </div>
+                                <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_forward</span>
+                                <BorderBeam duration={6} size={200} colorFrom="#ff5e1e" colorTo="#ea580c" className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Link>
+
+                            {/* Vendor */}
+                            <Link
+                                href={route('login', { role: 'Vendor' })}
+                                className="group relative flex items-center gap-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900/50 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-primary/50 cursor-pointer overflow-hidden"
+                            >
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                                    <span className="material-symbols-outlined text-3xl">storefront</span>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Login as Vendor</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage products, sales & invoices</p>
+                                </div>
+                                <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_forward</span>
+                                <BorderBeam duration={6} size={200} colorFrom="#ff5e1e" colorTo="#ea580c" className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Link>
+
+                            {/* Client */}
+                            <Link
+                                href={route('login', { role: 'Client' })}
+                                className="group relative flex items-center gap-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900/50 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-primary/50 cursor-pointer overflow-hidden"
+                            >
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-slate-800 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                                    <span className="material-symbols-outlined text-3xl">person</span>
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Login as Client</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">View history & contact vendors</p>
+                                </div>
+                                <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_forward</span>
+                                <BorderBeam duration={6} size={200} colorFrom="#ff5e1e" colorTo="#ea580c" className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Link>
+                        </div>
+                    </div>
+                </main>
+
+                <footer className="px-8 py-6 text-center lg:text-left">
+                    <p className="text-gray-400 dark:text-gray-600 text-sm">© 2026 Walletry. All rights reserved.</p>
+                </footer>
+            </div>
+        </div>
     );
 }

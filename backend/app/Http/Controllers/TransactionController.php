@@ -11,9 +11,14 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        // For now, get the first organization (assuming one organization per user for simplicity)
-        // In a real app, you'd use something like $request->user()->currentOrganization()
-        $organization = $request->user()->organizations()->first();
+        $user = $request->user();
+        $organization = $user->organizations()->first();
+
+        // If not joined, maybe they are just owner but not member? 
+        // Let's check owned organizations too as a fallback
+        if (!$organization) {
+            $organization = $user->organizationsOwned()->first();
+        }
 
         if (!$organization) {
             return Inertia::render('Dashboard', [
@@ -57,14 +62,32 @@ class TransactionController extends Controller
 
         return Inertia::render('Dashboard/Transactions/Index', [
             'transactions' => $query->paginate(15)->withQueryString(),
-            'filters' => $request->only(['search', 'filter', 'sort_by', 'sort_direction']),
-            // Metrics (Mocking for now, can be calculated dynamically)
+            'filters' => (object)$request->only(['search', 'filter', 'sort_by', 'sort_direction']),
+            // Metrics (Structured for frontend)
             'metrics' => [
-                'revenue' => $organization->transactions()->where('type', 'income')->sum('amount'),
-                'cashInHand' => $organization->transactions()->where('status', 'completed')->sum('amount'),
-                'outstandingInvoices' => $organization->transactions()->where('type', 'income')->where('status', 'pending')->sum('amount'),
-                'pendingBills' => $organization->transactions()->where('type', 'expense')->where('status', 'pending')->sum('amount'),
-                'netProfit' => $organization->transactions()->where('type', 'income')->sum('amount') - $organization->transactions()->where('type', 'expense')->sum('amount'),
+                'revenue' => [
+                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->sum('amount'), 2),
+                    'trend' => '0%',
+                    'trendDirection' => 'neutral'
+                ],
+                'cashInHand' => [
+                    'value' => '₹' . number_format($organization->transactions()->where('status', 'completed')->sum('amount'), 2),
+                    'trend' => '0%',
+                    'trendDirection' => 'neutral'
+                ],
+                'outstandingInvoices' => [
+                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->where('status', 'pending')->sum('amount'), 2),
+                    'detail' => 'from ' . $organization->transactions()->where('type', 'income')->where('status', 'pending')->count() . ' clients',
+                ],
+                'pendingBills' => [
+                    'value' => '₹' . number_format($organization->transactions()->where('type', 'expense')->where('status', 'pending')->sum('amount'), 2),
+                    'detail' => 'to ' . $organization->transactions()->where('type', 'expense')->where('status', 'pending')->count() . ' vendors',
+                ],
+                'netProfit' => [
+                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->sum('amount') - $organization->transactions()->where('type', 'expense')->sum('amount'), 2),
+                    'trend' => '0%',
+                    'trendDirection' => 'neutral'
+                ],
             ],
             'revenueOnlyTransactions' => $organization->transactions()->where('type', 'income')->get(),
             'cashAdjustmentsData' => ['data' => $organization->transactions()->where('status', 'completed')->get()],
@@ -128,5 +151,22 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return Redirect::back()->with('success', 'Transaction deleted successfully.');
+    }
+
+    public function recalculate(Request $request)
+    {
+        return Redirect::back()->with('success', 'Metrics recalculated.');
+    }
+
+    public function export(Request $request)
+    {
+        // Placeholder for export logic
+        return Redirect::back()->with('success', 'Export started.');
+    }
+
+    public function switchOrganization(Request $request)
+    {
+        // Placeholder for organization switch logic
+        return Redirect::back()->with('success', 'Organization switched.');
     }
 }

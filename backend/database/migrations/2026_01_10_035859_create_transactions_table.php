@@ -14,6 +14,9 @@ return new class extends Migration
             $table->foreignId('document_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('transaction_categories')->nullOnDelete();
             $table->enum('type', ['income', 'expense']);
+            $table->string('status')->default('pending'); // completed, pending, cancelled
+            $table->string('category')->nullable();
+            $table->string('client_name')->nullable();
             $table->decimal('amount', 14, 2);
             $table->date('transaction_date');
             $table->text('notes')->nullable();

@@ -29,14 +29,14 @@ export default function ReportFiltersCard({
     onExportCsv
 }: ReportFiltersCardProps) {
     return (
-        <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+        <div className="bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200 dark:border-border-dark p-6 transition-colors duration-200">
             <form className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
                 {/* Report Type */}
                 <div className="col-span-1 md:col-span-3">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Report Type</label>
                     <div className="relative">
                         <select
-                            className="w-full h-12 rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#f27f0d]/20 focus:border-[#f27f0d] text-sm px-3 appearance-none"
+                            className="w-full h-12 rounded-lg border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#151515] text-gray-900 dark:text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all px-3 appearance-none text-sm placeholder-gray-400 dark:placeholder-gray-600"
                             value={reportType}
                             onChange={(e) => setReportType(e.target.value)}
                         >
@@ -56,10 +56,9 @@ export default function ReportFiltersCard({
                     <div className="relative">
                         <input
                             type="date"
-                            className="w-full h-12 rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#f27f0d]/20 focus:border-[#f27f0d] text-sm px-3"
+                            className="w-full h-12 rounded-lg border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#151515] text-gray-900 dark:text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all px-3 text-sm placeholder-gray-400 dark:placeholder-gray-600"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            placeholder="mm/dd/yyyy"
                         />
                     </div>
                 </div>
@@ -68,7 +67,7 @@ export default function ReportFiltersCard({
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter by Client/Vendor</label>
                     <div className="relative">
                         <select
-                            className="w-full h-12 rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#f27f0d]/20 focus:border-[#f27f0d] text-sm px-3 appearance-none"
+                            className="w-full h-12 rounded-lg border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#151515] text-gray-900 dark:text-white focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all px-3 appearance-none text-sm placeholder-gray-400 dark:placeholder-gray-600"
                             value={clientFilter}
                             onChange={(e) => setClientFilter(e.target.value)}
                         >
@@ -93,7 +92,7 @@ export default function ReportFiltersCard({
                         Generate
                     </RainbowButton>
                     <button
-                        className="h-12 w-12 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg flex items-center justify-center transition-all"
+                        className="h-12 w-12 border border-gray-200 dark:border-border-dark bg-white dark:bg-[#151515] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center justify-center transition-all shadow-sm active:scale-95"
                         title="Export PDF"
                         type="button"
                         onClick={onExportPdf}
@@ -101,7 +100,7 @@ export default function ReportFiltersCard({
                         <Download size={20} />
                     </button>
                     <button
-                        className="h-12 w-12 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg flex items-center justify-center transition-all"
+                        className="h-12 w-12 border border-gray-200 dark:border-border-dark bg-white dark:bg-[#151515] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg flex items-center justify-center transition-all shadow-sm active:scale-95"
                         title="Export CSV"
                         type="button"
                         onClick={onExportCsv}

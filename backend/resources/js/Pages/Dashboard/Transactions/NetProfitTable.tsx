@@ -42,13 +42,13 @@ export default function NetProfitTable({ data, isLoading }: NetProfitTableProps)
                                 <div>
                                     <div className="text-xs text-gray-500 mb-1">Revenue</div>
                                     <div className="font-bold text-green-600 dark:text-green-400">
-                                        ${item.revenue}
+                                        ₹{item.revenue}
                                     </div>
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-500 mb-1">Expenses</div>
                                     <div className="font-bold text-red-600 dark:text-red-400">
-                                        ${item.expenses}
+                                        ₹{item.expenses}
                                     </div>
                                 </div>
                             </div>
@@ -56,7 +56,7 @@ export default function NetProfitTable({ data, isLoading }: NetProfitTableProps)
                             <div className="flex justify-between items-center pt-2 border-t border-gray-50 dark:border-gray-800">
                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Net Profit</span>
                                 <span className="font-bold text-blue-600 dark:text-blue-400">
-                                    ${item.net_profit}
+                                    ₹{item.net_profit}
                                 </span>
                             </div>
                         </div>
@@ -88,13 +88,13 @@ export default function NetProfitTable({ data, isLoading }: NetProfitTableProps)
                                         {item.month}
                                     </td>
                                     <td className="px-4 py-4 text-right text-green-600 font-bold">
-                                        ${item.revenue}
+                                        ₹{item.revenue}
                                     </td>
                                     <td className="px-4 py-4 text-right text-red-600 font-bold">
-                                        ${item.expenses}
+                                        ₹{item.expenses}
                                     </td>
                                     <td className="px-4 py-4 text-right text-blue-600 font-bold">
-                                        ${item.net_profit}
+                                        ₹{item.net_profit}
                                     </td>
                                     <td className="px-4 py-4 text-right">
                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${parseFloat(item.margin) > 0

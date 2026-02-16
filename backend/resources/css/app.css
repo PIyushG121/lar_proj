@@ -1,2 +1,120 @@
 @import "tailwindcss";
-@config "../../tailwind.config.js";
+
+@theme {
+    --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    --color-primary-50: #fff7ed;
+    --color-primary-100: #ffedd5;
+    --color-primary-200: #fed7aa;
+    --color-primary-300: #fdba74;
+    --color-primary-400: #fb923c;
+    --color-primary-500: #f97316;
+    --color-primary-600: #ea580c;
+    --color-primary-700: #c2410c;
+    --color-primary-800: #9a3412;
+    --color-primary-900: #7c2d12;
+    --color-primary-950: #431407;
+    --color-primary: #ff5e1e;
+
+    --color-surface-light: #ffffff;
+    --color-surface-dark: #09090b;
+    --color-card-light: #f8fafc;
+    --color-card-dark: #18181b;
+
+    --color-background-dark: #050505;
+    --color-card-dark-deep: #0f0f0f;
+    --color-border-dark: #1f1f1f;
+
+    @keyframes aurora {
+        from {
+            background-position: 50% 50%, 50% 50%;
+        }
+
+        to {
+            background-position: 350% 50%, 350% 50%;
+        }
+    }
+
+    @keyframes border-beam {
+        100% {
+            offset-distance: 100%;
+        }
+    }
+
+    @keyframes rainbow {
+        0% {
+            background-position: 0%;
+        }
+
+        100% {
+            background-position: 200%;
+        }
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    --animate-aurora: aurora 60s linear infinite;
+    --animate-border-beam: border-beam calc(var(--duration) * 1s) infinite linear;
+    --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+    --animate-ripple: ripple var(--duration, 600ms) linear;
+}
+
+/* Orange Theme Spectrum for Magic/Rainbow UI */
+:root {
+    --color-1: 25 100% 50%;
+    /* Deep Orange */
+    --color-2: 35 100% 55%;
+    /* Orange */
+    --color-3: 45 100% 60%;
+    /* Orange-Yellow */
+    --color-4: 15 100% 50%;
+    /* Red-Orange */
+    --color-5: 35 100% 65%;
+    /* Bright Orange */
+}
+
+/* Material Symbols variation settings */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@layer base {
+    html {
+        background-color: #ffffff;
+        color: #111827;
+    }
+
+    html.dark {
+        background-color: #09090b;
+        color: #f1f5f9;
+    }
+}
+
+/* 3D Flip Card Utilities */
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+    transform: rotateY(180deg);
+}

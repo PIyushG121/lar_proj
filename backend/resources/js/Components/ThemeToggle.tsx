@@ -1,46 +1,50 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
-    const [theme, setTheme] = useState("dark"); // Default to dark
+    const [theme, setTheme] = useState<"light" | "dark">("light");
 
     useEffect(() => {
-        // Check local storage or system preference
-        const storedTheme = localStorage.getItem("theme");
-        if (storedTheme) {
-            setTheme(storedTheme);
-            if (storedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+        // Initialize theme from localStorage or system preference
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+        setTheme(initialTheme);
+
+        if (initialTheme === "dark") {
+            document.documentElement.classList.add("dark");
         } else {
-            // Default to dark mode if no preference
-            setTheme('dark');
-            document.documentElement.classList.add('dark');
+            document.documentElement.classList.add("light"); // Ensure light is explicit if needed
         }
     }, []);
 
     const toggleTheme = () => {
         const newTheme = theme === "dark" ? "light" : "dark";
         setTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
 
-        if (newTheme === 'dark') {
-            document.documentElement.classList.add('dark');
+        if (newTheme === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.classList.remove("light");
         } else {
-            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.remove("dark");
+            document.documentElement.classList.add("light");
         }
+
+        localStorage.setItem("theme", newTheme);
     };
 
     return (
         <button
             onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg
-                 bg-gray-200 dark:bg-slate-800
-                 text-gray-800 dark:text-gray-200
-                 hover:bg-gray-300 dark:hover:bg-slate-700
-                 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg 
+                 bg-gray-100 dark:bg-zinc-900/50
+                 text-gray-600 dark:text-gray-400
+                 hover:bg-gray-200 dark:hover:bg-zinc-800
+                 border border-gray-200 dark:border-zinc-800
+                 transition-all cursor-pointer active:scale-95"
             aria-label="Toggle Dark Mode"
         >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
