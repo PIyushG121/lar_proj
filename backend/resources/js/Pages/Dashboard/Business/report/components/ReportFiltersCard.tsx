@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import { ChevronDown, Zap, Download, FileSpreadsheet } from "lucide-react";
 import { RainbowButton } from "@/Components/magicui/rainbow-button";
 
@@ -16,7 +16,7 @@ interface ReportFiltersCardProps {
     onExportCsv?: () => void;
 }
 
-export default function ReportFiltersCard({
+const ReportFiltersCard = memo(({
     reportType,
     setReportType,
     date,
@@ -27,7 +27,7 @@ export default function ReportFiltersCard({
     onGenerate,
     onExportPdf,
     onExportCsv
-}: ReportFiltersCardProps) {
+}: ReportFiltersCardProps) => {
     return (
         <div className="bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200 dark:border-border-dark p-6 transition-colors duration-200">
             <form className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
@@ -111,4 +111,8 @@ export default function ReportFiltersCard({
             </form>
         </div>
     );
-}
+});
+
+ReportFiltersCard.displayName = 'ReportFiltersCard';
+
+export default ReportFiltersCard;
