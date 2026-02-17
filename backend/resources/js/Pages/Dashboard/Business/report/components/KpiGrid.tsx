@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import KpiCard from "./KpiCard";
 import { DollarSign, Wallet, Clock } from "lucide-react";
 
@@ -29,7 +29,7 @@ interface KpiGridProps {
     loading: boolean;
 }
 
-export default function KpiGrid({ metrics, loading }: KpiGridProps) {
+const KpiGrid = memo(({ metrics, loading }: KpiGridProps) => {
     return (
         <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-6">
             <KpiCard
@@ -58,4 +58,8 @@ export default function KpiGrid({ metrics, loading }: KpiGridProps) {
             />
         </div>
     );
-}
+});
+
+KpiGrid.displayName = 'KpiGrid';
+
+export default KpiGrid;

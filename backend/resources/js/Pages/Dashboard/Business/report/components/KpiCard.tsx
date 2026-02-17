@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface KpiCardProps {
@@ -11,7 +11,7 @@ interface KpiCardProps {
     loading?: boolean;
 }
 
-export default function KpiCard({ title, value, trend, trendDirection, icon, loading }: KpiCardProps) {
+const KpiCard = memo(({ title, value, trend, trendDirection, icon, loading }: KpiCardProps) => {
     if (loading) {
         return (
             <div className="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-border-dark h-32 animate-pulse transition-colors duration-200">
@@ -41,4 +41,8 @@ export default function KpiCard({ title, value, trend, trendDirection, icon, loa
             </div>
         </div>
     );
-}
+});
+
+KpiCard.displayName = 'KpiCard';
+
+export default KpiCard;

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Transaction } from './types';
 import StatusBadge from "./ui/StatusBadge";
 import { Trash2 } from 'lucide-react';
+import { formatDate, formatCurrency } from '@/lib/format-utils';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -52,7 +53,7 @@ const getTransactionBadge = (transaction: Transaction) => {
 };
 
 // Flip Card Component with Delete Button
-const FlipCardBadge = ({ transaction, onDelete }: { transaction: Transaction; onDelete: (id: number) => void }) => {
+const FlipCardBadge = memo(({ transaction, onDelete }: { transaction: Transaction; onDelete: (id: number) => void }) => {
     const [isFlipped, setIsFlipped] = useState(false);
     const badge = getTransactionBadge(transaction);
 
@@ -93,16 +94,18 @@ const FlipCardBadge = ({ transaction, onDelete }: { transaction: Transaction; on
             </div>
         </div>
     );
-};
+});
 
-export default function TransactionsTable({
+FlipCardBadge.displayName = 'FlipCardBadge';
+
+const TransactionsTable = memo(({
     transactions,
     isLoading,
     sortConfig,
     onSort,
     onDelete,
     pagination
-}: TransactionsTableProps) {
+}: TransactionsTableProps) => {
     if (isLoading) {
         return <div className="p-8 text-center text-gray-500">Loading transactions...</div>;
     }
@@ -125,7 +128,7 @@ export default function TransactionsTable({
                                     </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-xs text-gray-400">
-                                            {new Date(transaction.transaction_date).toLocaleDateString()}
+                                            {formatDate(transaction.transaction_date)}
                                         </span>
                                         <StatusBadge status={transaction.status} />
                                     </div>
@@ -133,10 +136,7 @@ export default function TransactionsTable({
                             </div>
                             <div className={`font-bold whitespace-nowrap ${(transaction.type === 'Revenue' || transaction.type === 'income') ? 'text-green-600' : 'text-red-600'}`}>
                                 {(transaction.type === 'Revenue' || transaction.type === 'income') ? '+' : '-'}
-                                {(() => {
-                                    const val = String(transaction.amount || '0').replace('$', '₹');
-                                    return val.includes('₹') ? val : `₹${val}`;
-                                })()}
+                                {formatCurrency(transaction.amount)}
                             </div>
                         </div>
                     ))
@@ -203,14 +203,11 @@ export default function TransactionsTable({
                                         </div>
                                     </th>
                                     <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                                        {new Date(transaction.transaction_date).toLocaleDateString()}
+                                        {formatDate(transaction.transaction_date)}
                                     </td>
                                     <td className={`px-4 py-3 font-bold whitespace-nowrap text-right ${(transaction.type === 'Revenue' || transaction.type === 'income') ? 'text-green-600' : 'text-red-600'}`}>
                                         {(transaction.type === 'Revenue' || transaction.type === 'income') ? '+' : '-'}
-                                        {(() => {
-                                            const val = String(transaction.amount || '0').replace('$', '₹');
-                                            return val.includes('₹') ? val : `₹${val}`;
-                                        })()}
+                                        {formatCurrency(transaction.amount)}
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap">
                                         <StatusBadge status={transaction.status} />
@@ -255,4 +252,8 @@ export default function TransactionsTable({
             </div>
         </div>
     );
-}
+});
+
+TransactionsTable.displayName = 'TransactionsTable';
+
+export default TransactionsTable;

@@ -1,25 +1,23 @@
 "use client";
-import React from "react";
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
+import React, { memo } from "react";
+import { cn } from '@/lib/utils';
+import { formatDate, formatCurrency } from "@/lib/format-utils";
 
 interface TransactionRowProps {
     transaction: any;
 }
 
-export default function TransactionRow({ transaction }: TransactionRowProps) {
+const TransactionRow = memo(({ transaction }: TransactionRowProps) => {
     return (
         <tr className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-border-dark">
             <td className="p-4 text-gray-600 dark:text-gray-300">
-                {transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                {formatDate(transaction.transaction_date)}
             </td>
             <td className="p-4 font-medium text-gray-900 dark:text-white">{transaction.notes || 'No description'}</td>
             <td className="p-4 text-gray-600 dark:text-gray-300">{transaction.client_name}</td>
-            <td className="p-4 text-gray-600 dark:text-gray-300">{transaction.type === 'income' ? 'Income' : 'Expense'}</td>
+            <td className="p-4 text-gray-600 dark:text-gray-300">
+                {transaction.type === 'income' ? 'Income' : 'Expense'}
+            </td>
             <td className="p-4">
                 <span className={cn(
                     "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
@@ -30,17 +28,14 @@ export default function TransactionRow({ transaction }: TransactionRowProps) {
                     {transaction.status}
                 </span>
             </td>
-            <td className={cn(
-                "p-4 text-right font-medium",
-                transaction.type === 'income' ? "text-gray-900 dark:text-white" : "text-gray-900 dark:text-white"
-            )}>
+            <td className="p-4 text-right font-medium text-gray-900 dark:text-white">
                 {transaction.type === 'expense' ? '-' : ''}
-                {new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                    minimumFractionDigits: 2
-                }).format(parseFloat(transaction.amount?.toString().replace(/[^0-9.-]+/g, "") || "0"))}
+                {formatCurrency(transaction.amount)}
             </td>
         </tr>
     );
-}
+});
+
+TransactionRow.displayName = 'TransactionRow';
+
+export default TransactionRow;

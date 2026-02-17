@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import { ChevronDown } from "lucide-react";
 import TransactionRow from "./TransactionRow";
+import { formatDate, formatCurrency } from "@/lib/format-utils";
 
 interface TransactionsTableProps {
     transactions: any[];
@@ -13,7 +14,7 @@ interface TransactionsTableProps {
     netIncome: string;
 }
 
-export default function TransactionsTable({
+const TransactionsTable = memo(({
     transactions,
     loading,
     categoryFilter,
@@ -21,7 +22,7 @@ export default function TransactionsTable({
     statusFilter,
     setStatusFilter,
     netIncome
-}: TransactionsTableProps) {
+}: TransactionsTableProps) => {
     return (
         <div className="bg-white dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200 dark:border-border-dark overflow-hidden transition-colors duration-200">
             <div className="p-6 border-b border-gray-200 dark:border-border-dark flex justify-between items-center flex-wrap gap-4">
@@ -80,13 +81,14 @@ export default function TransactionsTable({
                                         <div className="font-semibold text-gray-900 dark:text-white">{transaction.client_name}</div>
                                         <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.notes}</div>
                                     </div>
-                                    <div className={`font-bold ${transaction.type === 'income' ? 'text-gray-900 dark:text-white' : 'text-gray-900 dark:text-white'}`}>
-                                        {transaction.type === 'expense' ? '-' : ''}{transaction.amount}
+                                    <div className="font-bold text-gray-900 dark:text-white">
+                                        {transaction.type === 'expense' ? '-' : ''}
+                                        {formatCurrency(transaction.amount)}
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-gray-500 dark:text-gray-400">
-                                        {transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                        {formatDate(transaction.transaction_date)}
                                     </span>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-medium ${transaction.status === 'completed' ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" :
                                         transaction.status === 'pending' ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400" :
@@ -183,4 +185,8 @@ export default function TransactionsTable({
             </div>
         </div>
     );
-}
+});
+
+TransactionsTable.displayName = 'TransactionsTable';
+
+export default TransactionsTable;
