@@ -23,6 +23,29 @@ export interface BreakdownItem {
     expenses: string | number;
 }
 
+/**
+ * Provides state, data fetching results, and derived report data used by the report UI.
+ *
+ * @returns An object containing:
+ * - `metrics`: raw metrics data from the metrics API
+ * - `computedMetrics`: formatted totals and trends for revenue, expenses, and net profit
+ * - `metricsLoading`: loading state for metrics fetch
+ * - `breakdownLoading`: loading state for monthly breakdown fetch
+ * - `transactionsLoading`: loading state for transactions fetch
+ * - `date`, `setDate`: selected date and its setter
+ * - `reportType`, `setReportType`: current report type and its setter
+ * - `clientFilter`, `setClientFilter`: active client/vendor filter and its setter
+ * - `categoryFilter`, `setCategoryFilter`: active category/type filter and its setter
+ * - `statusFilter`, `setStatusFilter`: active status filter and its setter
+ * - `showEmailModal`, `setShowEmailModal`: email modal visibility flag and its setter
+ * - `searchTerm`, `setSearchTerm`: current transaction search term and its setter
+ * - `uniqueClients`: sorted array of unique client/vendor names extracted from transactions
+ * - `chartData`: chart-ready series derived from monthly breakdown (month name, income, expenses)
+ * - `expenseCategoryData`: array of expense categories with aggregated values (top categories collapsed into `Other` when applicable)
+ * - `filteredTransactions`: transactions filtered by search term and active filters
+ * - `calculatedNetIncome`: formatted net income computed from filtered transactions
+ * - `COLORS`: exported color palette used for charts
+ */
 export function useReportViewModel() {
     const { data: metrics, isLoading: metricsLoading } = useMetrics();
     const { data: breakdownData, isLoading: breakdownLoading } = useFetchMonthlyBreakdown();
