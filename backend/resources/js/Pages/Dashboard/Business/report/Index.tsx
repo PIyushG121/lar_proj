@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardHeader from "@/Components/DashboardHeader";
+import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import ReportFiltersCard from "./components/ReportFiltersCard";
 import KpiGrid from "./components/KpiGrid";
 import ChartsSection from "./components/ChartsSection";

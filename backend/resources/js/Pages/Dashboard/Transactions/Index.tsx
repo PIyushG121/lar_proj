@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Head, usePage, useForm, router } from "@inertiajs/react";
 import BusinessLayout from "@/Layouts/BusinessLayout";
-import DashboardHeader from "@/Components/DashboardHeader";
+import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import { Toast } from "./components/ui/Toast";
 import { ConfirmModal } from "./components/ui/ConfirmModal";
 import DashboardMetrics from "./components/DashboardMetrics";
@@ -9,11 +9,11 @@ import TransactionFilters from "./components/TransactionFilters";
 import TransactionsTable from "./components/TransactionsTable";
 
 // Specialized Tables
-import RevenueTable from "./RevenueTable";
-import BillsTable from "./BillsTable";
-import InvoicesTable from "./InvoicesTable";
-import NetProfitTable from "./NetProfitTable";
-import CashFlowTable from "./CashFlowTable";
+import RevenueTable from "./components/RevenueTable";
+import BillsTable from "./components/BillsTable";
+import InvoicesTable from "./components/InvoicesTable";
+import NetProfitTable from "./components/NetProfitTable";
+import CashFlowTable from "./components/CashFlowTable";
 
 // Forms
 import AddTransactionForm from "./components/forms/AddTransactionForm";
@@ -299,8 +299,8 @@ export default function TransactionsPage({
         switch (selectedMetric) {
             case 'cashInHand':
                 return (
-                    <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sticky top-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <div className="ui-card ui-card-content sticky top-6">
+                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">payments</span>
                             Cash Adjustment
                         </h2>
@@ -332,8 +332,8 @@ export default function TransactionsPage({
                 );
             case 'outstandingInvoices':
                 return (
-                    <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sticky top-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <div className="ui-card ui-card-content sticky top-6">
+                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">description</span>
                             Add Invoice
                         </h2>
@@ -365,8 +365,8 @@ export default function TransactionsPage({
                 );
             case 'pendingBills':
                 return (
-                    <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sticky top-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <div className="ui-card ui-card-content sticky top-6">
+                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">receipt_long</span>
                             Add Pending Bill
                         </h2>
@@ -398,8 +398,8 @@ export default function TransactionsPage({
                 );
             case 'netProfit':
                 return (
-                    <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sticky top-6">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <div className="ui-card ui-card-content sticky top-6">
+                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">analytics</span>
                             Record Net Profit
                         </h2>
@@ -425,7 +425,7 @@ export default function TransactionsPage({
         <BusinessLayout>
             <Head title="Transactions" />
 
-            <div className="space-y-6">
+            <div className="ui-section-spacing">
                 {/* Header Section */}
                 <DashboardHeader
                     title="Transactions"
@@ -464,10 +464,10 @@ export default function TransactionsPage({
 
                     {/* Right Column: Table (2/3) */}
                     <div className="xl:col-span-2">
-                        <div className="bg-white dark:bg-black rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <div className="ui-card overflow-hidden">
                             <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
+                                    <h3 className="ui-h2 uppercase text-base">
                                         {selectedMetric ? selectedMetric.replace(/([A-Z])/g, ' $1').trim() : 'Recent Transactions'}
                                     </h3>
                                     {selectedMetric && (

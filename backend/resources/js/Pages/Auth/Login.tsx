@@ -42,10 +42,10 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                         <img src="/logo.png" alt="Walletry Logo" className="h-16 w-auto" />
                     </div>
                 </div>
-                <div className="relative rounded-2xl border border-slate-700/50 bg-dark-navy p-8 shadow-xl sm:p-10 transition-colors">
+                <div className="relative ui-card border-slate-700/50 bg-dark-navy p-8 shadow-xl sm:p-10 transition-colors">
                     <BorderBeam size={250} duration={12} delay={0} />
                     <div className="text-center">
-                        <h2 className="text-2xl font-bold text-primary sm:text-3xl">
+                        <h2 className="ui-h2 text-primary sm:text-3xl">
                             {role ? `Login as ${role}` : "Login"}
                         </h2>
                         <p className="mt-2 text-sm text-gray-300">
@@ -69,7 +69,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
                             <div>
                                 <label
-                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    className="ui-label"
                                     htmlFor="email"
                                 >
                                     Email Address
@@ -82,7 +82,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="you@example.com"
-                                    className={`block w-full rounded-xl border bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-gray-500 transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 ${errors.email
+                                    className={`ui-input border bg-slate-800/50 ${errors.email
                                         ? "border-red-500 focus:border-red-500"
                                         : "border-slate-700 focus:border-primary"
                                         }`}
@@ -91,7 +91,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
                             <div>
                                 <label
-                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    className="ui-label"
                                     htmlFor="password"
                                 >
                                     Password
@@ -104,7 +104,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder="Enter your password"
-                                    className={`block w-full rounded-xl border bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-gray-500 transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 ${errors.password
+                                    className={`ui-input border bg-slate-800/50 ${errors.password
                                         ? "border-red-500 focus:border-red-500"
                                         : "border-slate-700 focus:border-primary"
                                         }`}
@@ -144,7 +144,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full flex justify-center items-center rounded-xl bg-primary px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary-600 hover:shadow-primary/30 active:scale-95 disabled:opacity-70 disabled:active:scale-100"
+                                    className="ui-button ui-button-primary w-full py-3.5"
                                 >
                                     {processing ? (
                                         <span className="material-symbols-outlined animate-spin text-sm mr-2">

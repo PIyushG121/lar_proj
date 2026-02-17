@@ -2,11 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\TransactionController;
-use App\Http\Controllers\Api\InvoiceController;
-use App\Http\Controllers\Api\BillController;
-use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Finance\FinancialController;
+use App\Http\Controllers\Api\Finance\MagicController;
+use App\Http\Controllers\Api\Analytics\AnalyticsController;
+use App\Http\Controllers\Api\Support\SupportController;
 
 // Public Authentication Routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -20,41 +20,38 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckOrganization::class])->group(function () {
-    Route::get('/metrics', [\App\Http\Controllers\Api\MetricsController::class, 'index']);
-    Route::get('/metrics/breakdown', [\App\Http\Controllers\Api\MetricsController::class, 'monthlyBreakdown']);
-    Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::post('/transactions', [TransactionController::class, 'store']);
-    Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
-    Route::get('/invoices', [InvoiceController::class, 'index']);
-    Route::post('/invoices', [InvoiceController::class, 'store']);
-    Route::get('/invoices/outstanding', [InvoiceController::class, 'outstanding']);
-    Route::get('/bills', [BillController::class, 'index']);
-    Route::get('/bills/pending', [BillController::class, 'pending']);
-    Route::post('/bills', [BillController::class, 'store']);
+    // Analytics & Metrics
+    Route::get('/metrics', [AnalyticsController::class, 'getMetrics']);
+    Route::get('/metrics/breakdown', [AnalyticsController::class, 'getMonthlyBreakdown']);
+
+    // Financial Operations
+    Route::get('/transactions', [FinancialController::class, 'listTransactions']);
+    Route::post('/transactions', [FinancialController::class, 'storeTransaction']);
+    Route::delete('/transactions/{id}', [FinancialController::class, 'deleteTransaction']);
+
+    Route::get('/invoices', [FinancialController::class, 'listInvoices']);
+    Route::post('/invoices', [FinancialController::class, 'storeInvoice']);
+    Route::get('/invoices/outstanding', [FinancialController::class, 'getOutstandingInvoices']);
+
+    Route::get('/bills', [FinancialController::class, 'listBills']);
+    Route::get('/bills/pending', [FinancialController::class, 'getPendingBills']);
+    Route::post('/bills', [FinancialController::class, 'storeBill']);
+
+    // Charts
+    Route::get('/charts/cash-flow', [AnalyticsController::class, 'getCashFlow']);
+    Route::get('/charts/expense-breakdown', [AnalyticsController::class, 'getExpenseBreakdown']);
+    Route::get('/charts/top-clients', [AnalyticsController::class, 'getTopClients']);
 });
 
 // Report Generation
-Route::post('/reports/generate', [ReportController::class, 'generateReport']);
-Route::post('/reports/download', [ReportController::class, 'downloadReport']);
-Route::post('/reports/export-csv', [ReportController::class, 'exportCSV']);
+Route::post('/reports/generate', [AnalyticsController::class, 'generateReport']);
+Route::post('/reports/download', [AnalyticsController::class, 'downloadReport']);
+Route::post('/reports/export-csv', [AnalyticsController::class, 'exportCSV']);
 
-use App\Http\Controllers\Api\ChartController;
-
-Route::get('/charts/cash-flow', [ChartController::class, 'cashFlow']);
-Route::get('/charts/expense-breakdown', [ChartController::class, 'expenseBreakdown']);
-Route::get('/charts/top-clients', [ChartController::class, 'topClients']);
-
-
-use App\Http\Controllers\Api\MagicController;
-
+// Magic OCR
 Route::post('/magic/parse', [MagicController::class, 'parse']);
 
-
-use App\Http\Controllers\Api\HelpController;
-
-Route::get('/help', [HelpController::class, 'index']);
-Route::get('/help/search', [HelpController::class, 'search']);
-
-use App\Http\Controllers\Api\NotificationController;
-
-Route::get('/notifications', [NotificationController::class, 'index']);
+// Support & Notifications
+Route::get('/help', [SupportController::class, 'index']);
+Route::get('/help/search', [SupportController::class, 'search']);
+Route::get('/notifications', [SupportController::class, 'getNotifications']);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Transaction } from '../types';
+import { Transaction } from './types';
 import StatusBadge from "./ui/StatusBadge";
 import { Trash2 } from 'lucide-react';
 

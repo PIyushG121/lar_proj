@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import DashboardHeader from "@/Components/DashboardHeader";
+import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import CashFlowChart from "./components/charts/CashFlowChart";
 import ExpenseHistoryBarChart from "./components/charts/ExpenseHistoryBarChart";
 import RecentTransactions from "./components/RecentTransactions";
@@ -24,12 +24,12 @@ function BusinessDashboardContent() {
     } = useBusinessDashboardViewModel();
 
     return (
-        <main className="p-8 overflow-y-auto">
+        <main className="ui-page-container overflow-y-auto">
             <DashboardHeader title="Business" subtitle="Manage your business metrics." />
 
             {/* 1. Metrics Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-8">
-                <div className="bg-white dark:bg-black p-3 md:p-6 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mt-8 mb-8">
+                <div className="ui-card p-3 md:p-6">
                     <div className="flex justify-between items-start mb-2 md:mb-4">
                         <div>
                             <h3 className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium">
@@ -62,7 +62,7 @@ function BusinessDashboardContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black p-3 md:p-6 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="ui-card p-3 md:p-6">
                     <div className="flex justify-between items-start mb-2 md:mb-4">
                         <div>
                             <h3 className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium">
@@ -97,7 +97,7 @@ function BusinessDashboardContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black p-3 md:p-6 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="ui-card p-3 md:p-6">
                     <div className="flex justify-between items-start mb-2 md:mb-4">
                         <div>
                             <h3 className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium">
@@ -130,7 +130,7 @@ function BusinessDashboardContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black p-3 md:p-6 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="ui-card p-3 md:p-6">
                     <div className="flex justify-between items-start mb-2 md:mb-4">
                         <div>
                             <h3 className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium">
@@ -153,7 +153,7 @@ function BusinessDashboardContent() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black p-3 md:p-6 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="ui-card p-3 md:p-6">
                     <div className="flex justify-between items-start mb-2 md:mb-4">
                         <div>
                             <h3 className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium">

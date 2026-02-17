@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import DashboardHeader from "@/Components/DashboardHeader";
+import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import HelpSearchHero from "./components/HelpSearchHero";
 import FAQSection from "./components/FAQSection";
 import TroubleshootingGuides from "./components/TroubleshootingGuides";

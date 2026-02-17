@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardHeader from "@/Components/DashboardHeader";
+import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import AccountSettings from "./components/AccountSettings";
 import CompanyProfile from "./components/CompanyProfile";
 import NotificationPreferences from "./components/NotificationPreferences";

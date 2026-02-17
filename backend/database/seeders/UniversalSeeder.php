@@ -32,7 +32,7 @@ class UniversalSeeder extends Seeder
         // Create a default organization for the user
         $organization = \App\Models\Organization::updateOrCreate(
             ['name' => 'Demo Corp'],
-            ['slug' => 'demo-corp']
+            ['slug' => 'demo-corp', 'owner_id' => $user->id]
         );
         $user->organizations()->syncWithoutDetaching([$organization->id]);
 

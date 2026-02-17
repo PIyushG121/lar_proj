@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import BusinessSidebar from "@/Components/BusinessSidebar";
+import BusinessSidebar from "@/Components/Layout/BusinessSidebar";
 import HeaderActions from "@/Components/HeaderActions";
 import { usePage } from "@inertiajs/react";
 
@@ -18,7 +18,7 @@ export default function BusinessLayout({ children, header }: { children: React.R
     };
 
     return (
-        <div className="min-h-screen bg-surface-light dark:bg-surface-dark text-gray-800 dark:text-gray-200 font-display transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-surface-dark text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
             <BusinessSidebar
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
@@ -44,7 +44,7 @@ export default function BusinessLayout({ children, header }: { children: React.R
             </div>
 
             <div className="ml-0 md:ml-64 transition-all duration-300 pt-16 md:pt-4">
-                <main className="p-4 md:p-8">
+                <main className="ui-page-container">
                     {children}
                 </main>
             </div>
