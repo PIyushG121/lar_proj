@@ -1,7 +1,10 @@
 /**
  * Currency and Date formatting utilities
- * Version: 1.0.1 - Performance Optimized
+ * Version: 1.1.0 - Highly Optimized
  */
+
+// Pre-compiled regex for performance in tight loops
+const CURRENCY_CLEANUP_REGEX = /[^0-9.-]+/g;
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -10,22 +13,25 @@ const currencyFormatter = new Intl.NumberFormat('en-IN', {
 });
 
 /**
- * Formats a number or string as INR currency
+ * Formats a number or string as INR currency.
+ * Handles parsing if a string is provided.
  */
 export const formatCurrency = (amount: number | string): string => {
-    const value = typeof amount === 'string'
-        ? parseFloat(amount.replace(/[^0-9.-]+/g, "")) || 0
-        : amount;
+    const value = typeof amount === 'number' ? amount : parseCurrency(amount);
     return currencyFormatter.format(value);
 };
 
 /**
- * Parses a currency string to a number
+ * Parses a currency string to a number.
+ * Uses a pre-compiled regex for performance.
  */
 export const parseCurrency = (amount: string | number | undefined | null): number => {
-    if (amount === undefined || amount === null) return 0;
+    if (amount === null || amount === undefined) return 0;
     if (typeof amount === 'number') return amount;
-    return parseFloat(amount.toString().replace(/[^0-9.-]+/g, "")) || 0;
+
+    // Efficiently clean and parse the numeric string
+    const cleaned = amount.toString().replace(CURRENCY_CLEANUP_REGEX, "");
+    return parseFloat(cleaned) || 0;
 };
 
 /**
@@ -33,7 +39,12 @@ export const parseCurrency = (amount: string | number | undefined | null): numbe
  */
 export const formatDate = (date: string | Date | undefined | null): string => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-GB', {
+    const d = typeof date === 'string' ? new Date(date) : date;
+
+    // Check for invalid date
+    if (isNaN(d.getTime())) return 'N/A';
+
+    return d.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'

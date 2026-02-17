@@ -5,6 +5,24 @@ import { parseCurrency, formatCurrency } from '@/lib/format-utils';
 // Chart Colors
 export const COLORS = ['#f27f0d', '#fb923c', '#fdba74', '#9a3412'];
 
+export interface Transaction {
+    id: number;
+    transaction_date: string;
+    client_name: string;
+    description: string;
+    amount: string | number;
+    type: 'income' | 'expense' | 'Revenue';
+    status: string;
+    category?: string;
+    notes?: string;
+}
+
+export interface BreakdownItem {
+    month: string;
+    revenue: string | number;
+    expenses: string | number;
+}
+
 export function useReportViewModel() {
     const { data: metrics, isLoading: metricsLoading } = useMetrics();
     const { data: breakdownData, isLoading: breakdownLoading } = useFetchMonthlyBreakdown();
@@ -16,21 +34,24 @@ export function useReportViewModel() {
     const [categoryFilter, setCategoryFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [showEmailModal, setShowEmailModal] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // Added missing state
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Extract unique client/vendor names from transactions
     const uniqueClients = useMemo(() => {
-        if (!transactionsData?.data) return [];
-        const clients = (transactionsData.data as any[])
-            .map((t: any) => t.client_name)
-            .filter((name: string) => name && name !== 'Cash Adjustment');
+        const data = transactionsData?.data as Transaction[] | undefined;
+        if (!data) return [];
+
+        const clients = data
+            .map(t => t.client_name)
+            .filter(name => name && name !== 'Cash Adjustment');
+
         return Array.from(new Set(clients)).sort();
     }, [transactionsData]);
 
     // Process Breakdown Data for Charts
     const chartData = useMemo(() => {
         if (!breakdownData) return [];
-        return (breakdownData as any[]).map((item: any) => ({
+        return (breakdownData as BreakdownItem[]).map(item => ({
             name: item.month.split(' ')[0], // Get month only
             income: parseCurrency(item.revenue),
             expenses: parseCurrency(item.expenses),
@@ -39,17 +60,18 @@ export function useReportViewModel() {
 
     // Filter transactions based on selected filters
     const filteredTransactions = useMemo(() => {
-        const data = transactionsData?.data as any[];
+        const data = transactionsData?.data as Transaction[] | undefined;
         if (!data) return [];
 
         const searchLower = searchTerm.toLowerCase().trim();
 
-        return data.filter((transaction: any) => {
+        return data.filter(transaction => {
             // Filter by search term
             if (searchLower) {
                 const matchesSearch =
                     transaction.client_name?.toLowerCase().includes(searchLower) ||
                     transaction.notes?.toLowerCase().includes(searchLower) ||
+                    transaction.description?.toLowerCase().includes(searchLower) ||
                     transaction.amount?.toString().includes(searchLower);
 
                 if (!matchesSearch) return false;
@@ -88,23 +110,23 @@ export function useReportViewModel() {
 
         if (!filteredTransactions.length) return fallback;
 
-        let revenue = 0;
-        let expenses = 0;
+        let totalRevenue = 0;
+        let totalExpenses = 0;
         const categoryMap: Record<string, number> = {};
 
-        filteredTransactions.forEach((transaction: any) => {
+        filteredTransactions.forEach(transaction => {
             const amount = parseCurrency(transaction.amount);
 
-            if (transaction.type === 'income') {
-                revenue += amount;
+            if (transaction.type === 'income' || transaction.type === 'Revenue') {
+                totalRevenue += amount;
             } else if (transaction.type === 'expense') {
-                expenses += amount;
+                totalExpenses += amount;
                 const cat = transaction.category || 'Other';
                 categoryMap[cat] = (categoryMap[cat] || 0) + amount;
             }
         });
 
-        const netProfit = revenue - expenses;
+        const netProfit = totalRevenue - totalExpenses;
 
         // Process expense categories
         const sortedCategories = Object.entries(categoryMap)
@@ -120,8 +142,8 @@ export function useReportViewModel() {
 
         return {
             computedMetrics: {
-                revenue: { value: formatCurrency(revenue), trend: "0%", trendDirection: "up" as const },
-                expenses: { value: formatCurrency(expenses), trend: "0%", trendDirection: "down" as const },
+                revenue: { value: formatCurrency(totalRevenue), trend: "0%", trendDirection: "up" as const },
+                expenses: { value: formatCurrency(totalExpenses), trend: "0%", trendDirection: "down" as const },
                 netProfit: { value: formatCurrency(netProfit), trend: "0%", trendDirection: "up" as const }
             },
             expenseCategoryData: finalCategories,

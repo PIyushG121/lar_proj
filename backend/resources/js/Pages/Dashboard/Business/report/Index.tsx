@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import DashboardHeader from "@/Components/Layout/DashboardHeader";
 import ReportFiltersCard from "./components/ReportFiltersCard";
 import KpiGrid from "./components/KpiGrid";
@@ -30,6 +30,12 @@ const ReportsPage = () => {
         COLORS
     } = useReportViewModel();
 
+    // Memoize callbacks to prevent unnecessary re-renders of memoized components
+    const handleGenerate = useCallback(() => setShowEmailModal(true), [setShowEmailModal]);
+    const handleExportPdf = useCallback(() => console.log('Export PDF'), []);
+    const handleExportCsv = useCallback(() => console.log('Export CSV'), []);
+    const handleCloseModal = useCallback(() => setShowEmailModal(false), [setShowEmailModal]);
+
     return (
         <BusinessLayout>
             <Head title="Financial Reports" />
@@ -50,10 +56,10 @@ const ReportsPage = () => {
                             setDate={setDate}
                             clientFilter={clientFilter}
                             setClientFilter={setClientFilter}
-                            uniqueClients={uniqueClients as string[]}
-                            onGenerate={() => setShowEmailModal(true)}
-                            onExportPdf={() => console.log('Export PDF')}
-                            onExportCsv={() => console.log('Export CSV')}
+                            uniqueClients={uniqueClients}
+                            onGenerate={handleGenerate}
+                            onExportPdf={handleExportPdf}
+                            onExportCsv={handleExportCsv}
                         />
 
                         {/* KPI Cards */}
@@ -85,7 +91,7 @@ const ReportsPage = () => {
                 {/* Email Modal */}
                 <SendReportModal
                     isOpen={showEmailModal}
-                    onClose={() => setShowEmailModal(false)}
+                    onClose={handleCloseModal}
                     reportDetails={{
                         type: reportType,
                         date: date,
