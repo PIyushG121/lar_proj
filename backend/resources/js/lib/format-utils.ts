@@ -1,5 +1,6 @@
 /**
  * Currency and Date formatting utilities
+ * Version: 1.0.1 - Performance Optimized
  */
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
