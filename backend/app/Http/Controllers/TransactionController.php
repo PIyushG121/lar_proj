@@ -12,13 +12,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $organization = $user->organizations()->first();
-
-        // If not joined, maybe they are just owner but not member? 
-        // Let's check owned organizations too as a fallback
-        if (!$organization) {
-            $organization = $user->organizationsOwned()->first();
-        }
+        $organization = $user->organizations()->first() ?? $user->organizationsOwned()->first();
 
         if (!$organization) {
             return Inertia::render('Dashboard', [
@@ -26,74 +20,22 @@ class TransactionController extends Controller
             ]);
         }
 
-        $query = $organization->transactions();
-
-        // Search
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('notes', 'like', "%{$search}%")
-                    ->orWhere('category', 'like', "%{$search}%")
-                    ->orWhere('client_name', 'like', "%{$search}%");
-            });
-        }
-
-        // Filters
-        if ($request->has('filter') && $request->filter !== 'All') {
-            $filter = $request->filter;
-            if ($filter === 'Income') {
-                $query->where('type', 'income');
-            } elseif ($filter === 'Expenses') {
-                $query->where('type', 'expense');
-            } elseif ($filter === 'Pending') {
-                $query->where('status', 'pending');
-            }
-        }
-
-        // Sorting
-        $sortBy = $request->get('sort_by', 'transaction_date');
-        $sortDir = $request->get('sort_direction', 'desc');
-
-        if (in_array($sortBy, ['transaction_date', 'amount'])) {
-            $query->orderBy($sortBy, $sortDir);
-        } else {
-            $query->latest('transaction_date');
-        }
+        $transactions = $organization->transactions()
+            ->search($request->search)
+            ->filter($request->filter)
+            ->sort($request->get('sort_by'), $request->get('sort_direction'))
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Dashboard/Transactions/Index', [
-            'transactions' => $query->paginate(15)->withQueryString(),
+            'transactions' => $transactions,
             'filters' => (object)$request->only(['search', 'filter', 'sort_by', 'sort_direction']),
-            // Metrics (Structured for frontend)
-            'metrics' => [
-                'revenue' => [
-                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->sum('amount'), 2),
-                    'trend' => '0%',
-                    'trendDirection' => 'neutral'
-                ],
-                'cashInHand' => [
-                    'value' => '₹' . number_format($organization->transactions()->where('status', 'completed')->sum('amount'), 2),
-                    'trend' => '0%',
-                    'trendDirection' => 'neutral'
-                ],
-                'outstandingInvoices' => [
-                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->where('status', 'pending')->sum('amount'), 2),
-                    'detail' => 'from ' . $organization->transactions()->where('type', 'income')->where('status', 'pending')->count() . ' clients',
-                ],
-                'pendingBills' => [
-                    'value' => '₹' . number_format($organization->transactions()->where('type', 'expense')->where('status', 'pending')->sum('amount'), 2),
-                    'detail' => 'to ' . $organization->transactions()->where('type', 'expense')->where('status', 'pending')->count() . ' vendors',
-                ],
-                'netProfit' => [
-                    'value' => '₹' . number_format($organization->transactions()->where('type', 'income')->sum('amount') - $organization->transactions()->where('type', 'expense')->sum('amount'), 2),
-                    'trend' => '0%',
-                    'trendDirection' => 'neutral'
-                ],
-            ],
-            'revenueOnlyTransactions' => $organization->transactions()->where('type', 'income')->get(),
-            'cashAdjustmentsData' => ['data' => $organization->transactions()->where('status', 'completed')->get()],
-            'invoicesData' => $organization->transactions()->where('type', 'income')->where('status', 'pending')->get(),
-            'billsData' => $organization->transactions()->where('type', 'expense')->where('status', 'pending')->get(),
-            'breakdownData' => [], // Add breakdown logic if needed
+            'metrics' => Transaction::getDetailedMetrics($organization),
+            'formSchema' => Transaction::getFormSchema(),
+            'revenueOnlyTransactions' => $organization->transactions()->where('type', 'income')->limit(10)->get(),
+            'invoicesData' => $organization->transactions()->where('type', 'income')->where('status', 'pending')->limit(10)->get(),
+            'billsData' => $organization->transactions()->where('type', 'expense')->where('status', 'pending')->limit(10)->get(),
+            'breakdownData' => Transaction::getMonthlyBreakdown($organization),
         ]);
     }
 
@@ -124,25 +66,6 @@ class TransactionController extends Controller
         return Redirect::back()->with('success', 'Transaction created successfully.');
     }
 
-    public function businessDashboard()
-    {
-        return Inertia::render('Dashboard/Business/Index');
-    }
-
-    public function businessReport()
-    {
-        return Inertia::render('Dashboard/Business/report/Index');
-    }
-
-    public function businessSettings()
-    {
-        return Inertia::render('Dashboard/Business/settings/Index');
-    }
-
-    public function businessHelp()
-    {
-        return Inertia::render('Dashboard/Business/help/Index');
-    }
 
     public function destroy(Request $request, $id)
     {

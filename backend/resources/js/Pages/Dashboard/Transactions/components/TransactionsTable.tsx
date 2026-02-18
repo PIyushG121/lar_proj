@@ -16,6 +16,8 @@ interface TransactionsTableProps {
         total: number;
         onPageChange: (page: number) => void;
     };
+    summary?: React.ReactNode;
+    columns?: { key: string; label: string; render?: (item: Transaction) => React.ReactNode }[];
 }
 
 // Helper function to get transaction type badge configuration
@@ -98,22 +100,27 @@ const FlipCardBadge = memo(({ transaction, onDelete }: { transaction: Transactio
 
 FlipCardBadge.displayName = 'FlipCardBadge';
 
+import { TableSkeleton } from './ui/Skeleton';
+
 const TransactionsTable = memo(({
     transactions,
     isLoading,
     sortConfig,
     onSort,
     onDelete,
-    pagination
+    pagination,
+    summary,
+    columns
 }: TransactionsTableProps) => {
     if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading transactions...</div>;
+        return <TableSkeleton />;
     }
 
     return (
-        <div>
-            {/* Mobile View (Card List) */}
-            <div className="md:hidden space-y-4">
+        <div className="space-y-4">
+            {summary && <div className="mb-4">{summary}</div>}
+
+            <div className="overflow-x-auto">
                 {transactions.length > 0 ? (
                     transactions.map((transaction) => (
                         <div key={transaction.id} className="bg-white dark:bg-gray-900/30 p-4 rounded-lg border border-gray-100 dark:border-gray-800 flex justify-between items-start space-x-4">
@@ -152,73 +159,85 @@ const TransactionsTable = memo(({
                 <table className="w-full text-sm text-left">
                     <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
                         <tr>
-                            <th className="px-4 py-3 font-medium text-left" scope="col">
-                                <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-base">swap_vert</span>
-                                    <span>Transaction</span>
-                                </div>
-                            </th>
-                            <th
-                                className="px-4 py-3 font-medium text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                                scope="col"
-                                onClick={() => onSort('date')}
-                            >
-                                <div className="flex items-center gap-1">
-                                    <span>Date</span>
-                                    {sortConfig.key === 'date' && (
-                                        <span className="material-symbols-outlined text-sm">
-                                            {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-                                        </span>
-                                    )}
-                                </div>
-                            </th>
-                            <th
-                                className="px-4 py-3 font-medium text-right cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                                scope="col"
-                                onClick={() => onSort('amount')}
-                            >
-                                <div className="flex items-center justify-end gap-1">
-                                    <span>Amount</span>
-                                    {sortConfig.key === 'amount' && (
-                                        <span className="material-symbols-outlined text-sm">
-                                            {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-                                        </span>
-                                    )}
-                                </div>
-                            </th>
-                            <th className="px-4 py-3 font-medium text-left" scope="col">Status</th>
+                            {columns ? columns.map(col => (
+                                <th key={col.key} className="px-6 py-4 font-bold">{col.label}</th>
+                            )) : (
+                                <>
+                                    <th className="px-4 py-3 font-medium text-left" scope="col">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-base">swap_vert</span>
+                                            <span>Transaction</span>
+                                        </div>
+                                    </th>
+                                    <th
+                                        className="px-4 py-3 font-medium text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                                        scope="col"
+                                        onClick={() => onSort('date')}
+                                    >
+                                        <div className="flex items-center gap-1">
+                                            <span>Date</span>
+                                            {sortConfig.key === 'date' && (
+                                                <span className="material-symbols-outlined text-sm">
+                                                    {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th
+                                        className="px-4 py-3 font-medium text-right cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                                        scope="col"
+                                        onClick={() => onSort('amount')}
+                                    >
+                                        <div className="flex items-center justify-end gap-1">
+                                            <span>Amount</span>
+                                            {sortConfig.key === 'amount' && (
+                                                <span className="material-symbols-outlined text-sm">
+                                                    {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-left" scope="col">Status</th>
+                                </>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {transactions.length > 0 ? (
                             transactions.map((transaction) => (
                                 <tr key={transaction.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition duration-150 group">
-                                    <th className="px-4 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap" scope="row">
-                                        <div className="flex items-center gap-3">
-                                            <FlipCardBadge transaction={transaction} onDelete={onDelete} />
-                                            <div>
-                                                <div className="font-semibold">{transaction.client_name}</div>
-                                                <div className="text-xs text-gray-500 font-normal">{transaction.description}</div>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                                        {formatDate(transaction.transaction_date)}
-                                    </td>
-                                    <td className={`px-4 py-3 font-bold whitespace-nowrap text-right ${(transaction.type === 'Revenue' || transaction.type === 'income') ? 'text-green-600' : 'text-red-600'}`}>
-                                        {(transaction.type === 'Revenue' || transaction.type === 'income') ? '+' : '-'}
-                                        {formatCurrency(transaction.amount)}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap">
-                                        <StatusBadge status={transaction.status} />
-                                    </td>
+                                    {columns ? columns.map(col => (
+                                        <td key={col.key} className="px-6 py-4">
+                                            {col.render ? col.render(transaction) : String(transaction[col.key as keyof Transaction] || '')}
+                                        </td>
+                                    )) : (
+                                        <>
+                                            <th className="px-4 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap" scope="row">
+                                                <div className="flex items-center gap-3">
+                                                    <FlipCardBadge transaction={transaction} onDelete={onDelete} />
+                                                    <div>
+                                                        <div className="font-semibold">{transaction.client_name}</div>
+                                                        <div className="text-xs text-gray-500 font-normal">{transaction.description}</div>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                                                {formatDate(transaction.transaction_date)}
+                                            </td>
+                                            <td className={`px-4 py-3 font-bold whitespace-nowrap text-right ${(transaction.type === 'Revenue' || transaction.type === 'income') ? 'text-green-600' : 'text-red-600'}`}>
+                                                {(transaction.type === 'Revenue' || transaction.type === 'income') ? '+' : '-'}
+                                                {formatCurrency(transaction.amount)}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <StatusBadge status={transaction.status} />
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={4} className="p-8 text-center text-gray-500">
-                                    No transactions found.
-                                </td>
+                                <td colSpan={columns?.length || 4} className="p-8 text-center text-gray-500 italic">No transactions found</td>
                             </tr>
                         )}
                     </tbody>

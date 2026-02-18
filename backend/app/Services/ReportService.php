@@ -3,117 +3,79 @@
 namespace App\Services;
 
 use App\Models\Transaction;
-use App\Models\Invoice;
-use App\Models\Bill;
-use App\Models\DashboardMetric;
 use Carbon\Carbon;
 
 class ReportService
 {
+    /**
+     * Get all metrics for a report based on filters.
+     */
     public function getAllMetrics(array $filters): array
     {
-        $clientFilter = $filters['client_filter'] ?? null;
-        $categoryFilter = $filters['category_filter'] ?? null;
-        $statusFilter = $filters['status_filter'] ?? null;
-        $dateFilter = $filters['date'] ?? null;
+        // For simplicity and to reuse existing logic, we use the organizations' context
+        // This service is typically called within a request where $request->organization is available
+        $organization = request()->organization;
 
-        // Base queries
-        $transactionQuery = Transaction::query();
-        $invoiceQuery = Invoice::query();
-        $billQuery = Bill::query();
-
-        // Apply filters
-        if ($clientFilter) {
-            $transactionQuery->where('client_name', $clientFilter);
-            $invoiceQuery->where('vendor', $clientFilter);
-            $billQuery->where('client', $clientFilter);
+        if (!$organization) {
+            // Fallback for cases where organization isn't in request context (rare)
+            $orgId = request()->header('X-Organization-Id') ?? (\Illuminate\Support\Facades\Auth::user() ? \Illuminate\Support\Facades\Auth::user()->organization_id : null);
+            $organization = \App\Models\Organization::find($orgId);
         }
 
-        if ($categoryFilter) {
-            $transactionQuery->where('type', $categoryFilter);
+        // Apply filters to Transaction model
+        $query = Transaction::query()->where('organization_id', $organization->id);
+
+        if (isset($filters['search'])) {
+            $query->search($filters['search']);
         }
 
-        if ($statusFilter) {
-            $transactionQuery->where('status', $statusFilter);
-            $invoiceQuery->where('status', $statusFilter);
-            $billQuery->where('status', $statusFilter);
+        if (isset($filters['client_filter'])) {
+            $query->where('client_name', $filters['client_filter']);
         }
 
-        // Apply date filter (filter by month and year)
-        if ($dateFilter) {
-            $date = Carbon::parse($dateFilter);
-            $month = $date->month;
-            $year = $date->year;
-
-            // Note: In UniversalSeeder, date field is 'transaction_date' for Transactions, 
-            // but 'date' for Invoices and Bills according to the seeder data I saw.
-            // Wait, let's check the models/migrations again.
-            // Transactions: transaction_date
-            // Invoices: date (string in my migration)
-            // Bills: date (string in my migration)
-
-            $transactionQuery->whereMonth('transaction_date', $month)->whereYear('transaction_date', $year);
-            // Since I made 'date' a string in Invoice/Bill migration for simplicity (mocking seeder), 
-            // filtering by month/year might need string manipulation or proper date casting.
-            // For now, I'll keep it as is, but this is an optimization point.
-            $invoiceQuery->whereMonth('date', $month)->whereYear('date', $year);
-            $billQuery->whereMonth('date', $month)->whereYear('date', $year);
+        if (isset($filters['status_filter'])) {
+            $query->where('status', $filters['status_filter']);
         }
 
-        // Calculate metrics
-        $totalRevenue = (clone $transactionQuery)->where('type', 'Revenue')->get()->sum(function ($t) {
-            return (float) str_replace(['$', ',', '₹'], '', $t->amount ?? 0);
-        });
+        if (isset($filters['date'])) {
+            $date = Carbon::parse($filters['date']);
+            $query->whereMonth('transaction_date', $date->month)->whereYear('transaction_date', $date->year);
+        }
 
-        $totalExpenses = (clone $transactionQuery)->where('type', 'Expense')->get()->sum(function ($t) {
-            return (float) str_replace(['$', ',', '₹'], '', $t->amount ?? 0);
-        });
+        // Reuse cached metrics if possible, otherwise calculate
+        $metrics = Transaction::getDetailedMetrics($organization);
 
-        // Get from dashboard_metrics or calculate
-        $netProfitMetric = DashboardMetric::where('metric_key', 'net_profit')->first();
-        $netProfit = $netProfitMetric ? (float) str_replace(['$', ',', '₹'], '', $netProfitMetric->value) : ($totalRevenue - $totalExpenses);
-
-        $cashInHandMetric = DashboardMetric::where('metric_key', 'cash_in_hand')->first();
-        $cashInHand = $cashInHandMetric ? (float) str_replace(['$', ',', '₹'], '', $cashInHandMetric->value) : 0;
-
-        // Outstanding invoices and pending bills
-        $outstandingInvoices = (clone $invoiceQuery)->whereIn('status', ['Pending', 'Overdue'])->get()->sum(function ($i) {
-            return (float) str_replace(['$', ',', '₹'], '', $i->amount ?? 0);
-        });
-
-        $pendingBills = (clone $billQuery)->whereIn('status', ['Pending', 'Overdue'])->get()->sum(function ($b) {
-            return (float) str_replace(['$', ',', '₹'], '', $b->amount ?? 0);
-        });
+        $allTransactions = $query->latest()->get();
 
         return [
-            'totalRevenue' => $totalRevenue,
-            'totalExpenses' => $totalExpenses,
-            'netProfit' => $netProfit,
-            'cashInHand' => $cashInHand,
-            'outstandingInvoices' => $outstandingInvoices,
-            'pendingBills' => $pendingBills,
-            'transactions' => $transactionQuery->latest()->take(10)->get(),
-            'allTransactions' => $transactionQuery->latest()->get(),
-            'allInvoices' => $invoiceQuery->get(),
-            'allBills' => $billQuery->get(),
-            'invoices' => $invoiceQuery->whereIn('status', ['Pending', 'Overdue'])->get(),
-            'bills' => $billQuery->whereIn('status', ['Pending', 'Overdue'])->get(),
+            'totalRevenue' => (float)($metrics['totalRevenue'] ?? 0),
+            'totalExpenses' => (float)($metrics['totalExpenses'] ?? 0),
+            'netProfit' => (float)($metrics['netProfit'] ?? 0),
+            'cashInHand' => (float)($metrics['cashInHand'] ?? 0),
+            'outstandingInvoices' => (float)($metrics['outstandingInvoices'] ?? 0),
+            'pendingBills' => (float)($metrics['pendingBills'] ?? 0),
+            'transactions' => $allTransactions->take(10),
+            'allTransactions' => $allTransactions,
+            'invoices' => $allTransactions->where('type', 'income')->where('status', 'pending'),
+            'bills' => $allTransactions->where('type', 'expense')->where('status', 'pending'),
         ];
     }
 
+    /**
+     * Prepare data for report views.
+     */
     public function prepareReportData(array $metrics, array $validated, string $templateType): array
     {
         $date = $validated['date'] ?? now();
-        $startDate = Carbon::parse($date)->startOfMonth()->format('M d, Y');
-        $endDate = Carbon::parse($date)->endOfMonth()->format('M d, Y');
+        $carbonDate = Carbon::parse($date);
 
         return [
             'templateType' => $templateType,
             'reportTitle' => $this->getReportTitle($templateType),
             'reportType' => $this->getReportTitle($templateType),
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'period' => Carbon::parse($date)->format('F Y'),
+            'startDate' => $carbonDate->startOfMonth()->format('M d, Y'),
+            'endDate' => $carbonDate->endOfMonth()->format('M d, Y'),
+            'period' => $carbonDate->format('F Y'),
             'generatedDate' => now()->format('F d, Y h:i A'),
 
             // 5 Key Metrics
@@ -140,6 +102,9 @@ class ReportService
         ];
     }
 
+    /**
+     * Get report title based on template type.
+     */
     public function getReportTitle(string $templateType): string
     {
         return match ($templateType) {

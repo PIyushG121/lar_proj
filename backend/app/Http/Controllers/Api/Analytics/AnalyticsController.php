@@ -25,95 +25,12 @@ class AnalyticsController extends Controller
 
     public function getMetrics(Request $request)
     {
-        $org = $request->organization;
-
-        $revenue = $org->transactions()
-            ->where('type', 'income')
-            ->where('status', 'completed')
-            ->sum('amount');
-
-        $expenses = $org->transactions()
-            ->where('type', 'expense')
-            ->where('status', 'completed')
-            ->sum('amount');
-
-        $netProfit = $revenue - $expenses;
-        $cashInHand = $netProfit;
-
-        $outstandingInvoicesQuery = $org->transactions()
-            ->where('type', 'income')
-            ->where('status', 'pending');
-
-        $outstandingInvoicesTotal = $outstandingInvoicesQuery->sum('amount');
-        $outstandingInvoicesCount = $outstandingInvoicesQuery->count();
-
-        $pendingBillsQuery = $org->transactions()
-            ->where('type', 'expense')
-            ->where('status', 'pending');
-
-        $pendingBillsTotal = $pendingBillsQuery->sum('amount');
-        $pendingBillsCount = $pendingBillsQuery->count();
-
-        return response()->json([
-            'revenue' => [
-                'value' => '₹' . number_format($revenue, 2),
-                'trend' => '0%',
-                'trendDirection' => 'neutral'
-            ],
-            'net_profit' => [
-                'value' => '₹' . number_format($netProfit, 2),
-                'trend' => '0%',
-                'trendDirection' => 'neutral'
-            ],
-            'cash_in_hand' => [
-                'value' => '₹' . number_format($cashInHand, 2),
-                'trend' => '0%',
-                'trendDirection' => 'neutral'
-            ],
-            'outstanding_invoices' => [
-                'value' => '₹' . number_format($outstandingInvoicesTotal, 2),
-                'detail' => "from {$outstandingInvoicesCount} expected payments",
-                'trend' => '0%',
-                'trendDirection' => 'neutral'
-            ],
-            'pending_bills' => [
-                'value' => '₹' . number_format($pendingBillsTotal, 2),
-                'detail' => "to {$pendingBillsCount} expected payments",
-                'trend' => '0%',
-                'trendDirection' => 'neutral'
-            ]
-        ]);
+        return response()->json(Transaction::getDetailedMetrics($request->organization));
     }
 
     public function getMonthlyBreakdown(Request $request)
     {
-        $org = $request->organization;
-
-        $breakdown = $org->transactions()
-            ->selectRaw("strftime('%Y-%m', transaction_date) as period, 
-                         SUM(CASE WHEN type='income' THEN amount ELSE 0 END) as revenue,
-                         SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expenses")
-            ->where('status', 'completed')
-            ->groupBy('period')
-            ->orderBy('period', 'desc')
-            ->get();
-
-        $data = $breakdown->map(function ($item) {
-            $netProfit = $item->revenue - $item->expenses;
-            $margin = $item->revenue > 0 ? round(($netProfit / $item->revenue) * 100, 1) . '%' : '0%';
-
-            return [
-                'month' => Carbon::createFromFormat('Y-m', $item->period)->format('F Y'),
-                'revenue' => number_format($item->revenue, 2),
-                'expenses' => number_format($item->expenses, 2),
-                'net_profit' => number_format($netProfit, 2),
-                'margin' => $margin,
-                'raw_date' => $item->period,
-                'source' => 'calculated'
-            ];
-        });
-
-        return response()->json($data);
+        return response()->json(Transaction::getMonthlyBreakdown($request->organization));
     }
 
     // === CHARTS ===

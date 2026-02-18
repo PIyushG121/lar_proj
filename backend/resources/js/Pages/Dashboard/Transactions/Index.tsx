@@ -9,11 +9,7 @@ import TransactionFilters from "./components/TransactionFilters";
 import TransactionsTable from "./components/TransactionsTable";
 
 // Specialized Tables
-import RevenueTable from "./components/RevenueTable";
-import BillsTable from "./components/BillsTable";
-import InvoicesTable from "./components/InvoicesTable";
 import NetProfitTable from "./components/NetProfitTable";
-import CashFlowTable from "./components/CashFlowTable";
 
 // Forms
 import AddTransactionForm from "./components/forms/AddTransactionForm";
@@ -37,6 +33,7 @@ interface Props {
     invoicesData?: any;
     billsData?: any;
     breakdownData?: any;
+    formSchema?: any;
 }
 
 export default function TransactionsPage({
@@ -48,6 +45,7 @@ export default function TransactionsPage({
     invoicesData = [],
     billsData = [],
     breakdownData = [],
+    formSchema = [],
 }: Props) {
     const { url } = usePage();
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
@@ -55,6 +53,18 @@ export default function TransactionsPage({
     const [showMagicModal, setShowMagicModal] = useState(false);
     const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
     const [isMagicProcessing, setIsMagicProcessing] = useState(false);
+
+    const [isPageLoading, setIsPageLoading] = useState(false);
+
+    // Track Inertia navigation for skeleton states
+    React.useEffect(() => {
+        const unbindStart = router.on('start', () => setIsPageLoading(true));
+        const unbindFinish = router.on('finish', () => setIsPageLoading(false));
+        return () => {
+            unbindStart();
+            unbindFinish();
+        };
+    }, []);
 
     const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
         show: false,
@@ -257,32 +267,73 @@ export default function TransactionsPage({
         setToast({ show: true, message: `Adjusting ${metric.replace(/([A-Z])/g, ' $1').toLowerCase()}...`, type: 'success' });
     };
 
-    const renderSelectedTable = () => {
+    const renderSelectedTable = (isLoading: boolean) => {
+        const commonProps = {
+            isLoading,
+            onSort: handleSort,
+            onDelete: handleDeleteClick,
+            sortConfig: { key: filters.sort_by || 'transaction_date', direction: filters.sort_direction || 'desc' as 'asc' | 'desc' },
+            pagination: {
+                currentPage: transactions?.current_page || 1,
+                lastPage: transactions?.last_page || 1,
+                total: transactions?.total || 0,
+                onPageChange: (p: number) => router.get(url, { ...filters, page: p }, { preserveState: true })
+            }
+        };
+
         switch (selectedMetric) {
             case 'revenue':
-                return <RevenueTable data={revenueOnlyTransactions} isLoading={false} />;
+                return (
+                    <TransactionsTable
+                        {...commonProps}
+                        transactions={revenueOnlyTransactions}
+                        summary={
+                            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800">
+                                <span className="text-xs text-green-600 dark:text-green-400 font-bold uppercase">Total Revenue</span>
+                                <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                                    ₹{revenueOnlyTransactions.reduce((acc: number, t: any) => acc + parseFloat(t.amount), 0).toLocaleString()}
+                                </div>
+                            </div>
+                        }
+                    />
+                );
             case 'netProfit':
-                return <NetProfitTable data={breakdownData} isLoading={false} />;
-            case 'cashInHand':
-                return <CashFlowTable data={cashAdjustmentsData.data} isLoading={false} />;
+                return <NetProfitTable data={breakdownData} isLoading={isLoading} />;
             case 'outstandingInvoices':
-                return <InvoicesTable data={invoicesData} isLoading={false} />;
+                return (
+                    <TransactionsTable
+                        {...commonProps}
+                        transactions={invoicesData}
+                        summary={
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                                <span className="text-xs text-yellow-600 dark:text-yellow-400 font-bold uppercase">Outstanding Invoices</span>
+                                <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                                    ₹{invoicesData.reduce((acc: number, t: any) => acc + parseFloat(t.amount), 0).toLocaleString()}
+                                </div>
+                            </div>
+                        }
+                    />
+                );
             case 'pendingBills':
-                return <BillsTable data={billsData} isLoading={false} />;
+                return (
+                    <TransactionsTable
+                        {...commonProps}
+                        transactions={billsData}
+                        summary={
+                            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-800">
+                                <span className="text-xs text-red-600 dark:text-red-400 font-bold uppercase">Pending Bills</span>
+                                <div className="text-2xl font-bold text-red-700 dark:text-red-300">
+                                    ₹{billsData.reduce((acc: number, t: any) => acc + parseFloat(t.amount), 0).toLocaleString()}
+                                </div>
+                            </div>
+                        }
+                    />
+                );
             default:
                 return (
                     <TransactionsTable
-                        isLoading={false}
+                        {...commonProps}
                         transactions={transactions?.data || []}
-                        sortConfig={{ key: filters.sort_by || 'transaction_date', direction: filters.sort_direction || 'desc' }}
-                        onSort={handleSort}
-                        onDelete={handleDeleteClick}
-                        pagination={{
-                            currentPage: transactions?.current_page || 1,
-                            lastPage: transactions?.last_page || 1,
-                            total: transactions?.total || 0,
-                            onPageChange: (p: number) => router.get(url, { ...filters, page: p }, { preserveState: true })
-                        }}
                     />
                 );
         }
@@ -295,129 +346,105 @@ export default function TransactionsPage({
         return rev - exp - tax;
     };
 
-    const renderSelectedForm = () => {
+    const renderSelectedForm = (schema: any) => {
         switch (selectedMetric) {
             case 'cashInHand':
                 return (
-                    <div className="ui-card ui-card-content sticky top-6">
-                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">payments</span>
-                            Cash Adjustment
-                        </h2>
-                        <CashForm
-                            formData={cashForm.data}
-                            setFormData={(data) => cashForm.setData(data)}
-                            errors={cashForm.errors}
-                            onCancel={() => setSelectedMetric(null)}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                router.post(route('transactions.store'), {
-                                    type: cashForm.data.adjustmentType === 'Add Cash' ? 'income' : 'expense',
-                                    amount: cashForm.data.amount,
-                                    transaction_date: cashForm.data.date,
-                                    client_name: 'Cash Adjustment',
-                                    status: 'completed',
-                                    description: `Cash Adjustment: ${cashForm.data.reference}`,
-                                    category: 'Cash',
-                                }, {
-                                    onSuccess: () => {
-                                        setToast({ show: true, message: 'Cash adjustment saved', type: 'success' });
-                                        setSelectedMetric(null);
-                                        cashForm.reset();
-                                    }
-                                });
-                            }}
-                        />
-                    </div>
+                    <CashForm
+                        formData={cashForm.data}
+                        setFormData={(data) => cashForm.setData(data)}
+                        errors={cashForm.errors}
+                        onCancel={() => setSelectedMetric(null)}
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            router.post(route('transactions.store'), {
+                                type: cashForm.data.adjustmentType === 'Add Cash' ? 'income' : 'expense',
+                                amount: cashForm.data.amount,
+                                transaction_date: cashForm.data.date,
+                                client_name: 'Cash Adjustment',
+                                status: 'completed',
+                                description: `Cash Adjustment: ${cashForm.data.reference}`,
+                                category: 'Cash',
+                            }, {
+                                onSuccess: () => {
+                                    setToast({ show: true, message: 'Cash adjustment saved', type: 'success' });
+                                    setSelectedMetric(null);
+                                    cashForm.reset();
+                                }
+                            });
+                        }}
+                    />
                 );
             case 'outstandingInvoices':
                 return (
-                    <div className="ui-card ui-card-content sticky top-6">
-                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">description</span>
-                            Add Invoice
-                        </h2>
-                        <InvoiceForm
-                            formData={invoiceForm.data}
-                            setFormData={(data) => invoiceForm.setData(data)}
-                            errors={invoiceForm.errors}
-                            onCancel={() => setSelectedMetric(null)}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                router.post(route('transactions.store'), {
-                                    type: 'income',
-                                    amount: invoiceForm.data.amount,
-                                    transaction_date: invoiceForm.data.date,
-                                    client_name: invoiceForm.data.client_name,
-                                    status: invoiceForm.data.status,
-                                    category: 'Sales',
-                                    description: `Invoice ID: ${invoiceForm.data.invoiceId}`,
-                                }, {
-                                    onSuccess: () => {
-                                        setToast({ show: true, message: 'Invoice added', type: 'success' });
-                                        setSelectedMetric(null);
-                                        invoiceForm.reset();
-                                    }
-                                });
-                            }}
-                        />
-                    </div>
+                    <InvoiceForm
+                        formData={invoiceForm.data}
+                        setFormData={(data) => invoiceForm.setData(data)}
+                        errors={invoiceForm.errors}
+                        onCancel={() => setSelectedMetric(null)}
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            router.post(route('transactions.store'), {
+                                type: 'income',
+                                amount: invoiceForm.data.amount,
+                                transaction_date: invoiceForm.data.date,
+                                client_name: invoiceForm.data.client_name,
+                                status: invoiceForm.data.status,
+                                category: 'Sales',
+                                description: `Invoice ID: ${invoiceForm.data.invoiceId}`,
+                            }, {
+                                onSuccess: () => {
+                                    setToast({ show: true, message: 'Invoice added', type: 'success' });
+                                    setSelectedMetric(null);
+                                    invoiceForm.reset();
+                                }
+                            });
+                        }}
+                    />
                 );
             case 'pendingBills':
                 return (
-                    <div className="ui-card ui-card-content sticky top-6">
-                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">receipt_long</span>
-                            Add Pending Bill
-                        </h2>
-                        <BillForm
-                            formData={billForm.data}
-                            setFormData={(data) => billForm.setData(data)}
-                            errors={billForm.errors}
-                            onCancel={() => setSelectedMetric(null)}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                router.post(route('transactions.store'), {
-                                    type: 'expense',
-                                    amount: billForm.data.amount,
-                                    transaction_date: billForm.data.date,
-                                    client_name: billForm.data.client_name,
-                                    status: billForm.data.status,
-                                    category: 'Bills',
-                                    description: 'General Business Bill',
-                                }, {
-                                    onSuccess: () => {
-                                        setToast({ show: true, message: 'Bill added', type: 'success' });
-                                        setSelectedMetric(null);
-                                        billForm.reset();
-                                    }
-                                });
-                            }}
-                        />
-                    </div>
+                    <BillForm
+                        formData={billForm.data}
+                        setFormData={(data) => billForm.setData(data)}
+                        errors={billForm.errors}
+                        onCancel={() => setSelectedMetric(null)}
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            router.post(route('transactions.store'), {
+                                type: 'expense',
+                                amount: billForm.data.amount,
+                                transaction_date: billForm.data.date,
+                                client_name: billForm.data.client_name,
+                                status: billForm.data.status,
+                                category: 'Bills',
+                                description: 'General Business Bill',
+                            }, {
+                                onSuccess: () => {
+                                    setToast({ show: true, message: 'Bill added', type: 'success' });
+                                    setSelectedMetric(null);
+                                    billForm.reset();
+                                }
+                            });
+                        }}
+                    />
                 );
             case 'netProfit':
                 return (
-                    <div className="ui-card ui-card-content sticky top-6">
-                        <h2 className="ui-h2 mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">analytics</span>
-                            Record Net Profit
-                        </h2>
-                        <NetProfitForm
-                            formData={netProfitForm.data}
-                            setFormData={(data) => netProfitForm.setData(data)}
-                            errors={netProfitForm.errors}
-                            onCancel={() => setSelectedMetric(null)}
-                            calculatedNetProfit={calculateNetProfit}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setToast({ show: true, message: 'Net profit recorded', type: 'success' });
-                            }}
-                        />
-                    </div>
+                    <NetProfitForm
+                        formData={netProfitForm.data}
+                        setFormData={(data) => netProfitForm.setData(data)}
+                        errors={netProfitForm.errors}
+                        onCancel={() => setSelectedMetric(null)}
+                        calculatedNetProfit={calculateNetProfit}
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setToast({ show: true, message: 'Net profit recorded', type: 'success' });
+                        }}
+                    />
                 );
             default:
-                return <AddTransactionForm form={addTransactionForm} />;
+                return <AddTransactionForm form={addTransactionForm} schema={schema} />;
         }
     };
 
@@ -437,6 +464,7 @@ export default function TransactionsPage({
                     metrics={metrics}
                     selectedMetric={selectedMetric}
                     onEditClick={handleMetricEdit}
+                    isLoading={isPageLoading}
                 />
 
                 <div className="w-full">
@@ -459,7 +487,7 @@ export default function TransactionsPage({
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                     {/* Left Column: Dynamic Form (1/3) */}
                     <div className="xl:col-span-1">
-                        {renderSelectedForm()}
+                        {renderSelectedForm(formSchema)}
                     </div>
 
                     {/* Right Column: Table (2/3) */}
@@ -473,28 +501,24 @@ export default function TransactionsPage({
                                     {selectedMetric && (
                                         <button
                                             onClick={() => setSelectedMetric(null)}
-                                            className="text-sm text-primary hover:underline flex items-center gap-1"
+                                            className="text-primary hover:underline text-sm font-medium"
                                         >
-                                            <span className="material-symbols-outlined text-sm">close</span>
-                                            <span>Back to all</span>
+                                            View All
                                         </button>
                                     )}
                                 </div>
                                 <TransactionFilters
-                                    activeFilter={activeFilter}
-                                    onFilterChange={(f: string) => {
-                                        setActiveFilter(f);
-                                        router.get(url, { ...filters, filter: f }, { preserveState: true });
-                                    }}
                                     searchTerm={searchTerm}
-                                    onSearchChange={(s: string) => setSearchTerm(s)}
+                                    onSearchChange={setSearchTerm}
+                                    activeFilter={activeFilter}
+                                    onFilterChange={setActiveFilter}
                                     onRecalculate={handleRecalculate}
                                     onExport={handleExport}
                                     selectedMetric={selectedMetric}
                                 />
                             </div>
                             <div className="p-0">
-                                {renderSelectedTable()}
+                                {renderSelectedTable(isPageLoading)}
                             </div>
                         </div>
                     </div>

@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
-use App\Models\Invoice;
-use App\Models\Bill;
 use Illuminate\Http\Request;
 
 class FinancialController extends Controller
@@ -14,38 +12,13 @@ class FinancialController extends Controller
 
     public function listTransactions(Request $request)
     {
-        $query = $request->organization->transactions();
+        $transactions = $request->organization->transactions()
+            ->search($request->search)
+            ->filter($request->filter)
+            ->sort($request->get('sort_by'), $request->get('sort_direction'))
+            ->paginate(15);
 
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('notes', 'like', "%{$search}%")
-                    ->orWhere('category', 'like', "%{$search}%")
-                    ->orWhere('amount', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->has('filter') && $request->filter !== 'All') {
-            $filter = $request->filter;
-            if ($filter === 'Income') {
-                $query->where('type', 'income');
-            } elseif ($filter === 'Expenses') {
-                $query->where('type', 'expense');
-            } elseif ($filter === 'Pending') {
-                $query->where('status', 'pending');
-            }
-        }
-
-        $sortBy = $request->get('sort_by', 'transaction_date');
-        $sortDir = $request->get('sort_direction', 'desc');
-
-        if (in_array($sortBy, ['transaction_date', 'amount'])) {
-            $query->orderBy($sortBy, $sortDir);
-        } else {
-            $query->latest('transaction_date');
-        }
-
-        return response()->json($query->paginate(15));
+        return response()->json($transactions);
     }
 
     public function storeTransaction(Request $request)
@@ -80,13 +53,13 @@ class FinancialController extends Controller
         return response()->json(null, 204);
     }
 
-    // === INVOICES ===
+    // === INVOICES (Mapped to Transaction with type=income) ===
 
     public function listInvoices(Request $request)
     {
-        $invoices = $request->organization->invoices()
-            ->with('client')
-            ->orderBy('invoice_date', 'desc')
+        $invoices = $request->organization->transactions()
+            ->where('type', 'income')
+            ->orderBy('transaction_date', 'desc')
             ->paginate(15);
 
         return response()->json($invoices);
@@ -94,9 +67,9 @@ class FinancialController extends Controller
 
     public function getOutstandingInvoices(Request $request)
     {
-        $invoices = $request->organization->invoices()
-            ->where('status', '!=', 'paid')
-            ->with('client')
+        $invoices = $request->organization->transactions()
+            ->where('type', 'income')
+            ->where('status', 'pending')
             ->get();
 
         return response()->json($invoices);
@@ -105,74 +78,64 @@ class FinancialController extends Controller
     public function storeInvoice(Request $request)
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:parties,id',
+            'client_name' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255',
             'invoice_date' => 'required|date',
-            'due_date' => 'nullable|date',
-            'status' => 'required|in:draft,sent,paid,overdue,cancelled',
-            'subtotal' => 'required|numeric',
-            'tax_total' => 'required|numeric',
             'grand_total' => 'required|numeric',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'status' => 'required|in:pending,completed,cancelled',
         ]);
 
-        $client = $request->organization->parties()->find($request->client_id);
-        if (!$client) {
-            return response()->json(['message' => 'Invalid client for this organization'], 422);
-        }
-
-        $invoice = $request->organization->invoices()->create([
-            'client_id' => $validated['client_id'],
-            'invoice_number' => $validated['invoice_number'],
-            'invoice_date' => $validated['invoice_date'],
-            'due_date' => $validated['due_date'] ?? null,
+        $invoice = $request->organization->transactions()->create([
+            'type' => 'income',
+            'amount' => $validated['grand_total'],
+            'transaction_date' => $validated['invoice_date'],
             'status' => $validated['status'],
-            'subtotal' => $validated['subtotal'],
-            'tax_total' => $validated['tax_total'],
-            'grand_total' => $validated['grand_total'],
+            'client_name' => $validated['client_name'],
+            'notes' => "Invoice #: " . $validated['invoice_number'],
         ]);
 
-        foreach ($validated['items'] as $item) {
-            $invoice->items()->create($item);
-        }
-
-        return response()->json($invoice->load('items'), 201);
+        return response()->json($invoice, 201);
     }
 
-    // === BILLS ===
+    // === BILLS (Mapped to Transaction with type=expense) ===
 
     public function listBills(Request $request)
     {
-        // Scoping suggested for consistency, though original Bill controller used Bill::all()
-        return response()->json($request->organization->bills ?? Bill::all());
+        $bills = $request->organization->transactions()
+            ->where('type', 'expense')
+            ->orderBy('transaction_date', 'desc')
+            ->paginate(15);
+
+        return response()->json($bills);
     }
 
-    public function getPendingBills()
+    public function getPendingBills(Request $request)
     {
-        return response()->json(Bill::whereIn('status', ['Pending', 'Overdue'])->get());
+        $bills = $request->organization->transactions()
+            ->where('type', 'expense')
+            ->where('status', 'pending')
+            ->get();
+
+        return response()->json($bills);
     }
 
     public function storeBill(Request $request)
     {
         $validated = $request->validate([
             'client' => 'required|string|max:255',
-            'date' => 'required|string',
-            'amount' => 'required|string',
-            'status' => 'required|in:Paid,Pending,Overdue',
-            'custom_fields' => 'nullable|array',
+            'date' => 'required|date',
+            'amount' => 'required|numeric',
+            'status' => 'required|in:completed,pending,cancelled',
         ]);
 
-        // Use authenticated user or default as before
-        $validated['user_id'] = $request->user()->id ?? 1;
+        $bill = $request->organization->transactions()->create([
+            'type' => 'expense',
+            'amount' => $validated['amount'],
+            'transaction_date' => $validated['date'],
+            'status' => $validated['status'],
+            'client_name' => $validated['client'],
+        ]);
 
-        $bill = Bill::create($validated);
-
-        return response()->json([
-            'success' => true,
-            'bill' => $bill,
-        ], 201);
+        return response()->json($bill, 201);
     }
 }

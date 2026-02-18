@@ -18,10 +18,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/dashboard/business', [\App\Http\Controllers\TransactionController::class, 'businessDashboard'])->name('dashboard.business');
-    Route::get('/dashboard/business/report', [\App\Http\Controllers\TransactionController::class, 'businessReport'])->name('dashboard.business.report');
-    Route::get('/dashboard/business/settings', [\App\Http\Controllers\TransactionController::class, 'businessSettings'])->name('dashboard.business.settings');
-    Route::get('/dashboard/business/help', [\App\Http\Controllers\TransactionController::class, 'businessHelp'])->name('dashboard.business.help');
+    Route::get('/dashboard/business', [\App\Http\Controllers\Business\BusinessController::class, 'index'])->name('dashboard.business');
+    Route::get('/dashboard/business/report', [\App\Http\Controllers\Business\BusinessController::class, 'report'])->name('dashboard.business.report');
+    Route::get('/dashboard/business/settings', [\App\Http\Controllers\Business\BusinessController::class, 'settings'])->name('dashboard.business.settings');
+    Route::get('/dashboard/business/help', [\App\Http\Controllers\Business\BusinessController::class, 'help'])->name('dashboard.business.help');
     Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [\App\Http\Controllers\TransactionController::class, 'store'])->name('transactions.store');
     Route::post('/transactions/recalculate', [\App\Http\Controllers\TransactionController::class, 'recalculate'])->name('transactions.recalculate');

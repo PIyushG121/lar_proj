@@ -1,9 +1,10 @@
 import React from 'react';
+import DynamicForm, { FormField } from '@/Components/Forms/DynamicForm';
 import { CashInHandFormData } from '@/lib/validations';
 
 interface CashFormProps {
     formData: CashInHandFormData;
-    setFormData: (data: CashInHandFormData) => void;
+    setFormData: (data: any) => void;
     errors: Record<string, string>;
     onSubmit: (e: React.FormEvent) => void;
     onCancel: () => void;
@@ -16,72 +17,52 @@ export default function CashForm({
     onSubmit,
     onCancel
 }: CashFormProps) {
+    const fields: FormField[] = [
+        {
+            name: 'adjustmentType',
+            label: 'Action',
+            type: 'status',
+            options: [
+                { label: 'Add Cash', value: 'Add Cash' },
+                { label: 'Remove Cash', value: 'Remove Cash' },
+                { label: 'Correction', value: 'Correction' },
+            ],
+        },
+        {
+            name: 'amount',
+            label: 'Amount',
+            type: 'currency',
+        },
+        {
+            name: 'date',
+            label: 'Date',
+            type: 'date',
+        },
+        {
+            name: 'reference',
+            label: 'Reference / Note',
+            type: 'text',
+            placeholder: 'e.g. Daily Cash Sales',
+        },
+    ];
+
+    // Adapter for setFormData to internal form.setData expected by DynamicForm
+    const formAdapter = {
+        data: formData,
+        setData: (name: string, value: any) => setFormData({ ...formData, [name]: value }),
+        errors: errors,
+        processing: false, // Managed by parent
+    };
+
     return (
-        <form onSubmit={onSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Action</label>
-                    <select
-                        value={formData.adjustmentType}
-                        onChange={(e) => setFormData({ ...formData, adjustmentType: e.target.value as any })}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800 rounded-lg text-sm appearance-none outline-none focus:border-primary"
-                    >
-                        <option value="Add Cash">Add Cash</option>
-                        <option value="Remove Cash">Remove Cash</option>
-                        <option value="Correction">Correction</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
-                    <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">₹</span>
-                        <input
-                            type="text"
-                            value={formData.amount}
-                            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                            className={`w-full pl-7 pr-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.amount ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
-                            placeholder="0.00"
-                        />
-                    </div>
-                    {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount}</p>}
-                </div>
-                <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
-                    <input
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.date ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
-                    />
-                    {errors.date && <p className="text-xs text-red-500 mt-1">{errors.date}</p>}
-                </div>
-                <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Reference / Note</label>
-                    <input
-                        type="text"
-                        value={formData.reference}
-                        onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-950/50 border rounded-lg text-sm outline-none focus:border-primary ${errors.reference ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'}`}
-                        placeholder="e.g. Daily Cash Sales"
-                    />
-                    {errors.reference && <p className="text-xs text-red-500 mt-1">{errors.reference}</p>}
-                </div>
-            </div>
-            <div className="flex justify-end gap-3 pt-2">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    className="px-6 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
-                >
-                    Save Adjustment
-                </button>
-            </div>
-        </form>
+        <DynamicForm
+            title="Cash Adjustment"
+            icon="payments"
+            fields={fields}
+            form={formAdapter}
+            onSubmit={onSubmit}
+            onCancel={onCancel}
+            submitLabel="Save Adjustment"
+        />
     );
 }

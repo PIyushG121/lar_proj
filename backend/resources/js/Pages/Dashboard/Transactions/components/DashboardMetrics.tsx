@@ -19,13 +19,17 @@ interface Metrics {
     pendingBills: MetricDetail;
 }
 
+import { MetricsSkeleton } from './ui/Skeleton';
+
 interface DashboardMetricsProps {
     metrics: Metrics;
     onEditClick: (metric: string, value: string) => void;
     selectedMetric: string | null;
+    isLoading?: boolean;
 }
 
-export default function DashboardMetrics({ metrics, onEditClick, selectedMetric }: DashboardMetricsProps) {
+export default function DashboardMetrics({ metrics, onEditClick, selectedMetric, isLoading }: DashboardMetricsProps) {
+    if (isLoading) return <MetricsSkeleton />;
     if (!metrics) return null;
 
     // Helper to render trend

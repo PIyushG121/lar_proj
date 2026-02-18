@@ -23,7 +23,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['organization_id', 'type']);
+            $table->index(['organization_id', 'status', 'type']); // For metrics calculation
+            $table->index(['organization_id', 'client_name']); // For search queries
             $table->index('transaction_date');
         });
     }
