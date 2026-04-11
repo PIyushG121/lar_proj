@@ -134,7 +134,15 @@ class AnalyticsController extends Controller
         ]);
 
         try {
-            $templateType = $validated['template_type'] ?? 'comprehensive';
+            $typeMap = [
+                'pl' => 'comprehensive',
+                'is' => 'revenue-analysis',
+                'er' => 'expense-analysis',
+                'ca' => 'receivables'
+            ];
+            $templateType = $typeMap[$validated['template_type']] ?? $validated['template_type'] ?? 'comprehensive';
+            $validated['template_type'] = $templateType; // Update for service
+            
             $metrics = $this->reportService->getAllMetrics($validated);
             $data = $this->reportService->prepareReportData($metrics, $validated, $templateType);
 

@@ -46,7 +46,7 @@ export default function SendReportModal({ isOpen, onClose, reportDetails }: Send
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    report_type: reportDetails.type,
+                    template_type: reportDetails.type,
                     date: reportDetails.date || new Date().toISOString().split('T')[0],
                     client_filter: reportDetails.client,
                     email: emailForm.email,

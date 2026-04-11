@@ -77,7 +77,13 @@ class Transaction extends Model
     {
         $allowed = ['transaction_date', 'amount'];
         $column = in_array($sortBy, $allowed) ? $sortBy : 'transaction_date';
-        return $query->orderBy($column, $sortDir);
+        
+        $direction = strtolower($sortDir ?? 'desc');
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+        return $query->orderBy($column, $direction);
     }
 
     /**

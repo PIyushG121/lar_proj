@@ -30,7 +30,7 @@ class TransactionController extends Controller
         return Inertia::render('Dashboard/Transactions/Index', [
             'transactions' => $transactions,
             'filters' => (object)$request->only(['search', 'filter', 'sort_by', 'sort_direction']),
-            'metrics' => Transaction::getDetailedMetrics($organization),
+            'metrics' => Transaction::getMetricsForOrganization($organization),
             'formSchema' => Transaction::getFormSchema(),
             'revenueOnlyTransactions' => $organization->transactions()->where('type', 'income')->limit(10)->get(),
             'invoicesData' => $organization->transactions()->where('type', 'income')->where('status', 'pending')->limit(10)->get(),
