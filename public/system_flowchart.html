@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Budget Tracker System Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-bottom: 48px;
+      font-weight: 400;
+    }
+
+    .diagram-wrapper {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 60px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(0, 0, 0, 0.02);
+      width: 100%;
+      max-width: 900px;
+      /* Increased to allow more room for flow */
+      position: relative;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    /* ── Node Styles ── */
+    .node-fill {
+      fill: #f1f5f9;
+    }
+
+    /* Default light blue-gray */
+    .node-stroke {
+      stroke: #cbd5e1;
+    }
+
+    /* Light gray stroke */
+    .icon-fill {
+      fill: #64748b;
+    }
+
+    /* Slate gray for icons */
+
+    /* Special fill for DB and Cloud */
+    .db-fill {
+      fill: #e0f2fe;
+    }
+
+    .ai-fill {
+      fill: #e0f2fe;
+      stroke-dasharray: 6, 4;
+    }
+
+    .flownode rect,
+    .flownode ellipse,
+    .flownode polygon {
+      stroke-width: 1.5;
+      transition: stroke 0.2s, filter 0.2s;
+    }
+
+    .flownode:hover rect,
+    .flownode:hover ellipse,
+    .flownode:hover polygon {
+      stroke: #0284c7;
+      /* Blue hover */
+      cursor: pointer;
+      filter: drop-shadow(0 2px 6px rgba(2, 132, 199, 0.2));
+    }
+
+    /* ── Text Styling ── */
+    .label-main {
+      font-size: 14px;
+      /* increased */
+      font-weight: 600;
+      fill: #0f172a;
+      /* Near black */
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+
+    .label-edge {
+      font-size: 12px;
+      fill: #475569;
+      font-weight: 400;
+    }
+
+    /* ── Connectors ── */
+    .connector {
+      fill: none;
+      stroke: #94a3b8;
+      stroke-width: 2;
+    }
+
+    .connector-dashed {
+      fill: none;
+      stroke: #94a3b8;
+      stroke-width: 2;
+      stroke-dasharray: 8, 6;
+    }
+
+    marker#arrowhead path {
+      fill: #94a3b8;
+    }
+
+    marker#arrowDashed path {
+      fill: #94a3b8;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      margin-top: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 32px;
+      justify-content: center;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 30px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    /* Legend Shape Icons (using simple divs for brevity) */
+    .leg-shape {
+      width: 22px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    .leg-diamond {
+      width: 16px;
+      height: 16px;
+      transform: rotate(45deg);
+    }
+
+    .leg-cylinder {
+      width: 22px;
+      height: 16px;
+      border-radius: 50% 50% 4px 4px / 30% 30% 4px 4px;
+      border: 2px solid #0284c7;
+      background: #e0f2fe;
+    }
+
+    .leg-cloud {
+      width: 22px;
+      height: 16px;
+      border-radius: 8px;
+      border: 2px dashed #94a3b8;
+      background: #e0f2fe;
+    }
+
+    .leg-solid {
+      width: 30px;
+      height: 3px;
+      background: #94a3b8;
+    }
+
+    .leg-dashed {
+      width: 30px;
+      height: 3px;
+      background: repeating-linear-gradient(90deg, #94a3b8 0, #94a3b8 6px, transparent 6px, transparent 12px);
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 class="page-title">System Architecture Diagram</h1>
+  <p class="page-subtitle">Finance Budget Tracker — End-to-End Data Flow</p>
+
+  <div class="diagram-wrapper">
+    <svg viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L0,8 L10,4 Z" fill="#94a3b8" />
+        </marker>
+        <marker id="arrowDashed" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L0,8 L10,4 Z" fill="#94a3b8" />
+        </marker>
+      </defs>
+
+      <g class="flownode" id="node-user" transform="translate(250, 60)">
+        <ellipse rx="80" ry="30" class="node-fill node-stroke" />
+        <circle cx="-15" cy="-2" r="7" class="icon-fill" />
+        <path d="M-25,20 Q-15,10 -5,20" class="node-stroke" fill="none" stroke-width="2" />
+        <text x="15" y="0" class="label-main">User Request</text>
+      </g>
+
+      <g class="flownode" id="node-access" transform="translate(250, 200)">
+        <polygon points="0,-60 90,0 0,60 -90,0" class="node-fill node-stroke" />
+        <circle cx="-10" cy="-5" r="5" class="icon-fill" />
+        <rect x="-10" y="0" width="20" height="6" class="icon-fill" />
+        <text x="0" y="15" class="label-main" font-size="12">Access Check</text>
+      </g>
+
+      <g class="flownode" id="node-end" transform="translate(550, 200)">
+        <ellipse rx="50" ry="25" class="node-fill node-stroke" stroke-dasharray="5,4" />
+        <text x="0" y="0" class="label-main">End Session</text>
+      </g>
+
+      <g class="flownode" id="node-dashboard" transform="translate(250, 340)">
+        <rect x="-80" y="-25" width="160" height="50" rx="8" class="node-fill node-stroke" />
+        <rect x="-65" y="-12" width="12" height="12" rx="2" class="icon-fill" />
+        <rect x="-65" y="4" width="12" height="8" rx="2" class="icon-fill" />
+        <text x="10" y="0" class="label-main">Dashboard</text>
+      </g>
+
+      <g class="flownode" id="node-budget" transform="translate(250, 460)">
+        <rect x="-90" y="-25" width="180" height="50" rx="8" class="node-fill node-stroke" />
+        <rect x="-75" y="-10" width="5" height="20" rx="1.5" class="icon-fill" />
+        <rect x="-68" y="-5" width="5" height="15" rx="1.5" class="icon-fill" />
+        <text x="10" y="0" class="label-main">Budget Tracker</text>
+      </g>
+
+      <g class="flownode" id="node-payment" transform="translate(100, 620)">
+        <polygon points="0,-50 70,0 0,50 -70,0" class="node-fill node-stroke" />
+        <text x="0" y="0" class="label-main" font-size="11">Payment<tspan x="0" y="14">Status</tspan></text>
+      </g>
+
+      <g class="flownode" id="node-ai" transform="translate(550, 620)">
+        <ellipse rx="90" ry="35" class="ai-fill node-stroke" />
+        <circle cx="-15" cy="0" r="8" class="icon-fill" />
+        <circle cx="0" cy="-6" r="7" class="icon-fill" />
+        <text x="25" y="0" class="label-main">AI Insights / APIs</text>
+      </g>
+
+      <g class="flownode" id="node-reports" transform="translate(400, 760)">
+        <rect x="-80" y="-25" width="160" height="50" rx="8" class="node-fill node-stroke" />
+        <rect x="-65" y="-12" width="12" height="16" rx="2" class="icon-fill" />
+        <text x="10" y="0" class="label-main">Generate Reports</text>
+      </g>
+
+      <g class="flownode" id="node-db" transform="translate(250, 900)">
+        <ellipse rx="100" ry="25" cx="0" cy="20" class="db-fill node-stroke" />
+        <rect x="-100" y="-20" width="200" height="40" class="db-fill" />
+        <ellipse rx="100" ry="25" cx="0" cy="-20" class="node-fill node-stroke" />
+        <ellipse rx="100" ry="25" cx="0" cy="0" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,4" />
+        <text x="0" y="-15" class="label-main" font-size="16">Finance Database</text>
+      </g>
+
+      <path d="M250,90 L250,137" class="connector" marker-end="url(#arrowhead)" />
+      <text x="260" y="115" class="label-edge">Initiates Session</text>
+
+      <path d="M250,260 L250,312" class="connector" marker-end="url(#arrowhead)" />
+      <text x="260" y="290" class="label-edge">Authorized</text>
+
+      <path d="M340,200 L497,200" class="connector" marker-end="url(#arrowhead)" />
+      <text x="400" y="193" class="label-edge">Access Denied</text>
+
+      <path d="M250,365 L250,432" class="connector" marker-end="url(#arrowhead)" />
+
+      <path d="M160,460 L100,460 L100,567" class="connector" marker-end="url(#arrowhead)" />
+      <text x="105" y="453" class="label-edge">Transaction Failed</text>
+
+      <path d="M340,460 L550,460 L550,582" class="connector-dashed" marker-end="url(#arrowDashed)" />
+      <text x="360" y="453" class="label-edge">Request Analytics/Insights (Async)</text>
+
+      <path d="M550,655 L550,760 L483,760" class="connector-dashed" marker-end="url(#arrowDashed)" />
+      <text x="500" y="753" class="label-edge">Categorization/Predictions</text>
+
+      <path d="M100,670 L100,810 L160,810 L160,873" class="connector" marker-end="url(#arrowhead)" />
+      <text x="105" y="790" class="label-edge">Update Transaction</text>
+
+      <path d="M320,760 L280,760 L280,872" class="connector" marker-end="url(#arrowhead)" />
+      <text x="285" y="800" class="label-edge">Read/Write Data</text>
+
+      <path d="M350,900 L750,900 L750,340 L333,340" class="connector-dashed" marker-end="url(#arrowDashed)" />
+      <text x="500" y="893" class="label-edge">System Refresh / Session State Update</text>
+
+    </svg>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="leg-shape"></div> Application Module / Process
+      </div>
+      <div class="legend-item">
+        <div class="leg-shape leg-diamond"></div> Decision Point
+      </div>
+      <div class="legend-item">
+        <div class="leg-shape leg-cylinder"></div> Primary Database
+      </div>
+      <div class="legend-item">
+        <div class="leg-shape leg-cloud"></div> External API / AI service
+      </div>
+      <div class="legend-item">
+        <div class="leg-solid"></div> Sync Data Flow
+      </div>
+      <div class="legend-item">
+        <div class="leg-dashed"></div> Async / Loop-back Flow
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
